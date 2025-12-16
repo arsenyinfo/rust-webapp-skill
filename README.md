@@ -57,6 +57,10 @@ In Claude Code, the skill activates when you ask to build a web app:
 5. **Validate** - run checks (cargo check, clippy, tests, release build)
 6. Repeat 2-5 until validation passes
 
+## References
+
+Based on the approach from [app.build: Production Framework for AI-Generated Applications](https://arxiv.org/abs/2509.03310).
+
 ## License
 
 MIT
