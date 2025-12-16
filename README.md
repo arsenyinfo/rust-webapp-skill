@@ -48,7 +48,14 @@ In Claude Code, the skill activates when you ask to build a web app:
 - "Create a voting application"
 - "Make a simple blog"
 
-The skill handles scaffolding, provides reference docs for common patterns, and validates your app before deployment.
+### Flow
+
+1. **Scaffold** - creates project structure with Neon branch
+2. **Model** - define data models and migrations
+3. **Backend** - implement route handlers
+4. **Frontend** - update Askama templates with HTMX/Alpine
+5. **Validate** - run checks (cargo check, clippy, tests, release build)
+6. Repeat 2-5 until validation passes
 
 ## License
 
