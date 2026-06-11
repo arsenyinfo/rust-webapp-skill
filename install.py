@@ -1,12 +1,11 @@
 #!/usr/bin/env python3
 """
-Install rust-webapp skill for Claude Code.
+Install the rust-webapp skill for Claude Code.
 
 Usage:
-    curl -sSL https://raw.githubusercontent.com/arseny/rust-webapp-skill/main/install.py | python3
+    curl -sSL https://raw.githubusercontent.com/arsenyinfo/skills/main/install.py | python3
 """
 
-import os
 import shutil
 import subprocess
 import sys
@@ -14,8 +13,9 @@ import tempfile
 from pathlib import Path
 
 
-REPO_URL = "https://github.com/arsenyinfo/rust-webapp-skill.git"
+REPO_URL = "https://github.com/arsenyinfo/skills.git"
 SKILL_NAME = "rust-webapp"
+SOURCE_SKILL_PATH = Path("skills") / SKILL_NAME
 
 
 def check_prerequisites() -> list[str]:
@@ -65,9 +65,8 @@ def main():
             capture_output=True,
         )
 
-        # copy skill subdirectory contents
         print(f"Installing to {target_dir}...")
-        shutil.copytree(tmp_path / "skill", target_dir)
+        shutil.copytree(tmp_path / SOURCE_SKILL_PATH, target_dir)
 
     # make scripts executable
     scripts_dir = target_dir / "scripts"
