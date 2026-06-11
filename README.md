@@ -1,6 +1,12 @@
 # Skills
 
-My reusable agent skills.
+Just another collection of skills for coding agents.
+
+- `rust-webapp`: build full-stack Rust web apps with Axum, SQLx, HTMX, Alpine.js, and Neon. No React, no TypeScript, no Webpack, no Vite, no Babel, no yarn, no pnpm. Based on the ideas from [appbuild](https://github.com/neondatabase/appdotbuild-agent)
+- `large-feature`: rigorous workflow for larger features and refactors.
+- `unify`: refactor accreted components into one coherent design.
+- `ml-project`: opinionated workflow for ML projects.
+
 
 ## Install
 
@@ -21,12 +27,6 @@ Install all skills:
 ```bash
 npx skills add arsenyinfo/skills --skill '*' -g -a claude-code
 ```
-
-## Skills
-
-- `rust-webapp`: build full-stack Rust web apps with Axum, SQLx, HTMX, Alpine.js, and Neon.
-- `large-feature`: rigorous workflow for larger features and refactors.
-- `unify`: refactor accreted components into one coherent design.
 
 ## Layout
 
