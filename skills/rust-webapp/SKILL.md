@@ -11,14 +11,18 @@ Build full-stack stateful web apps using Axum + HTMX + Alpine.js + Neon (Postgre
 
 ### Phase 1: Setup
 
-Prerequisites (install once):
+Requirements before scaffolding:
+
+- Rust toolchain with `cargo` installed from https://rustup.rs.
+- `neonctl`, `jq`, and `sqlx-cli` available on `PATH`.
+- `NEON_API_KEY` and `NEON_PROJECT_ID` exported in the environment.
+
+Install tool dependencies once:
 ```bash
 npm i -g neonctl
 brew install jq
 cargo install sqlx-cli --features postgres,native-tls
 ```
-
-Required env vars: `NEON_API_KEY`, `NEON_PROJECT_ID`
 
 Scaffold app:
 ```bash

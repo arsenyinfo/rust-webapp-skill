@@ -10,9 +10,9 @@ Just another collection of skills for coding agents.
 - `ml-project`: opinionated workflow for ML projects.
 
 Kudos for inspiration and ideas go to:
-- [cc-thingz](https://github.com/umputun/cc-thingz) by @umputun;
-- [appdotbuild](https://github.com/neondatabase/appdotbuild-agent) by @neondatabase team; 
-- [reharness](https://github.com/bes-dev/reharness) by @bes-dev;
+- [cc-thingz](https://github.com/umputun/cc-thingz) by [@umputun](https://github.com/umputun);
+- [appdotbuild](https://github.com/neondatabase/appdotbuild-agent) by the [@neondatabase](https://github.com/neondatabase) team;
+- [reharness](https://github.com/bes-dev/reharness) by [@bes-dev](https://github.com/bes-dev);
 
 ## Install
 
