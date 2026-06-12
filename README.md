@@ -2,11 +2,17 @@
 
 Just another collection of skills for coding agents.
 
-- `rust-webapp`: build full-stack Rust web apps with Axum, SQLx, HTMX, Alpine.js, and Neon. No React, no TypeScript, no Webpack, no Vite, no Babel, no yarn, no pnpm. Based on the ideas from [appbuild](https://github.com/neondatabase/appdotbuild-agent)
 - `large-feature`: rigorous workflow for larger features and refactors.
 - `unify`: refactor accreted components into one coherent design.
+- `dialectic`: prove and counter-prove claims with parallel agents before concluding. 
+- `investigate`: evidence-first debugging and root cause investigation. 
+- `rust-webapp`: build full-stack Rust web apps with Axum, SQLx, HTMX, Alpine.js, and Neon. No React, no TypeScript, no Webpack, no Vite, no Babel, no yarn, no pnpm.
 - `ml-project`: opinionated workflow for ML projects.
 
+Kudos for inspiration and ideas go to:
+- [cc-thingz](https://github.com/umputun/cc-thingz) by @umputun;
+- [appdotbuild](https://github.com/neondatabase/appdotbuild-agent) by @neondatabase team; 
+- [reharness](https://github.com/bes-dev/reharness) by @bes-dev;
 
 ## Install
 
