@@ -32,7 +32,10 @@ struct EditTemplate {
     <link rel="stylesheet" href="https://unpkg.com/@picocss/pico@2/css/pico.min.css">
     <script src="https://unpkg.com/htmx.org@2.0.4"></script>
     <script defer src="https://unpkg.com/alpinejs@3.14.8/dist/cdn.min.js"></script>
+    <!-- FixMe: choose one frontend stack. Uncomment DataStar only when replacing HTMX + Alpine. -->
+    <!-- <script type="module" src="https://cdn.jsdelivr.net/gh/starfederation/datastar@v1.0.2/bundles/datastar.js"></script> -->
     <link rel="stylesheet" href="/static/styles.css">
+    {% block head %}{% endblock %}
 </head>
 <body>
     <nav class="container">
@@ -42,6 +45,10 @@ struct EditTemplate {
 </body>
 </html>
 ```
+
+This base template ships with PicoCSS, HTMX, and Alpine.js loaded by default.
+DataStar is left commented out so the starter does not preload both stacks at once.
+Use `{% block head %}` for page-specific additions.
 
 ### List Template
 

@@ -1,11 +1,11 @@
 ---
 name: rust-webapp
-description: Build full-stack web applications using Rust (Axum + SQLx) with HTMX + Alpine.js frontend and Neon (serverless PostgreSQL). Use when asked to create web apps, CRUD apps, dashboards, forms, or any stateful web application. Triggers on requests like "build a todo app", "create a voting app", "make a dashboard", "build a blog", etc.
+description: Build full-stack web applications using Rust (Axum + SQLx) with server-rendered frontend patterns using HTMX + Alpine.js or DataStar, plus Neon (serverless PostgreSQL). Use when asked to create web apps, CRUD apps, dashboards, forms, or any stateful web application. Triggers on requests like "build a todo app", "create a voting app", "make a dashboard", "build a blog", etc.
 ---
 
-Build full-stack stateful web apps using Axum + HTMX + Alpine.js + Neon (PostgreSQL).
+Build full-stack stateful web apps using Axum + server-rendered frontend patterns + Neon (PostgreSQL).
 
-**Stack**: Axum + SQLx (Rust), Askama templates + HTMX + Alpine.js + PicoCSS, Neon (PostgreSQL), Docker.
+**Stack**: Axum + SQLx (Rust), Askama templates + HTMX + Alpine.js or DataStar + PicoCSS, Neon (PostgreSQL), Docker.
 
 ## Workflow
 
@@ -52,10 +52,17 @@ Reference: [Handlers](./references/handlers.md) - CRUD patterns, router setup, t
 
 1. Update Askama templates in `templates/`
 2. Delete unused template files (create.html, edit.html if not needed)
-3. Use HTMX for interactivity, Alpine.js for state
+3. Default to `HTMX + Alpine.js` for simpler CRUD, forms, filters, and small local UI state
+4. Use `DataStar` only when the Rust app needs a more advanced reactive surface:
+   - SSE-first or realtime UI
+   - Progressive multi-event backend responses
+   - One feature needing both local reactive state and server-pushed updates
+5. If unsure, start with `HTMX + Alpine.js`
+6. Do not mix `HTMX` and `DataStar` on the same interaction surface unless there is a concrete reason
 
 Reference: [Templates](./references/templates.md) - Askama, HTMX, Alpine patterns
 Reference: [Design](./references/design.md) - CSS components, layout patterns
+Reference: [DataStar](./references/datastar.md) - when to prefer it in this Rust skill, template patterns, SSE patterns, and further reading
 
 ### Phase 5: Validation
 
@@ -76,7 +83,7 @@ Fix all errors before completing.
 │   ├── db.rs               # SQLx pool setup
 │   └── models.rs           # Data structs
 ├── templates/
-│   ├── base.html           # Base layout (PicoCSS/HTMX/Alpine CDN)
+│   ├── base.html           # Base layout (PicoCSS/HTMX/Alpine CDN; DataStar opt-in)
 │   ├── index.html          # List view
 │   ├── edit.html           # Edit form
 │   └── create.html         # Create form
