@@ -1,6 +1,6 @@
 ---
 name: investigate
-description: Evidence-first debugging and root cause investigation. Use for bugs, test failures, incidents, performance regressions, flaky behavior, integration failures, or unexplained behavior before proposing fixes.
+description: Evidence-first debugging and root cause investigation. Use for triaging bugs, test failures, incidents, performance regressions, flaky behavior, integration failures, or unexplained behavior before proposing fixes.
 argument-hint: "<symptom or question>"
 ---
 
@@ -94,3 +94,4 @@ Use these questions as a guide, not a template to fill mechanically:
 - Do not overfit to one observed failure. Fix the underlying mechanism generically.
 - If the root cause requires changing scope, design, API, data contract, or acceptance criteria, surface that as a separate decision rather than hiding it in a local fix.
 - Keep the investigation scoped to the symptom unless evidence shows a broader fault.
+- Actively use subagents during the investigation. If Codex companion is available, spawn its subagent for second opinion too. 
