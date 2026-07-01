@@ -20,7 +20,7 @@ Author each goal state once, alongside the task. The eval harness sets up the se
 
 Average accuracy (pass^1) hides inconsistency, and inconsistency is what burns you in production: the task that works four times and wipes the wrong record the fifth. Report **pass^k — the probability of solving the *same* task on all k independent trials**, k≥5. A high pass^1 with a low pass^k means your agent is a coin flip wearing a suit.
 
-The τ-bench result is the cautionary tale: even strong function-calling agents (GPT-4o class) succeed on **under 50% of tasks**, and are markedly inconsistent — pass^8 falls well below pass^1 in the retail domain (roughly a 60% relative drop). Assume your harness is worse until measured. Run each task k times against fixed seed state and report the fraction solved on *every* trial, not on average.
+The τ-bench result is the cautionary tale: even strong function-calling agents (GPT-4o class) are unreliable — under 50% success in the airline domain — and markedly inconsistent everywhere, with pass^8 falling well below pass^1 in retail (roughly a 60% relative drop). Assume your harness is worse until measured. Run each task k times against fixed seed state and report the fraction solved on *every* trial, not on average.
 
 **Hold out a test set.** If you tune tool descriptions, parameter names, and prompt wording against the same tasks you score on, you are overfitting your harness to the eval — the numbers climb while real behavior doesn't. Split: a dev set you iterate against, a test set you look at rarely and never tune to.
 
@@ -62,7 +62,7 @@ Every run emits one structured trace. If a human cannot read a single trace and 
 - **final outcome**, **errors** (type, recoverable?), **timing**, **token usage**
 - **eval labels** when the run is a graded case
 
-Emit each event *before* executing the action it describes, so a crash mid-step still leaves a trace. Above all, tag every event with **who decided it**: a *model decision* (chose a tool), a *harness decision* (gated, denied, retried), or a *tool execution* (the side effect itself). Collapsing these three is how you spend an hour blaming the model for a permission the harness denied.
+The trace is an append-only log: emit an *intent/decision* event (chose a tool, gated an action) the moment the decision is made — before execution — and emit the matching *result/outcome* event once the action returns, so a crash mid-step still leaves the intent recorded even if no result follows. Above all, tag every event with **who decided it**: a *model decision* (chose a tool), a *harness decision* (gated, denied, retried), or a *tool execution* (the side effect itself). Collapsing these three is how you spend an hour blaming the model for a permission the harness denied.
 
 ## Launch gate
 

@@ -19,17 +19,17 @@ An MCP server is a **capability provider**, not a trust boundary. It hands the m
 
 ## Result and output conventions
 
-- **Errors in-band.** Report tool failures inside the result object via `isError`, not as a protocol-level (JSON-RPC) error. A protocol error is invisible to the model; an in-band error is an observation it can read and recover from. Every result — success, partial, blocked, failure — is the next input to the loop.
+- **Errors in-band.** Report *tool execution* failures inside the result object via `isError`, not as a protocol-level (JSON-RPC) error. Reserve JSON-RPC errors for protocol faults (unknown method, malformed request); a tool that ran and failed is a result the model must read and recover from, so it belongs in-band as an observation. Every result — success, partial, blocked, failure — is the next input to the loop.
 - **Structured output.** Declare an `outputSchema` and return `structuredContent`; also return a text block for backward compatibility with hosts that don't consume structured output. Validate the payload against the schema before returning it, so the model never sees a shape you didn't promise.
 - **Semantic fields, bounded size.** Return names, not raw UUIDs; paginate, filter, and truncate with sane defaults rather than dumping. The harness truncates again as a backstop.
 
 ## State via explicit handles
 
-MCP has **no protocol-level session**. Do not assume server-side state survives between calls. Model any multi-step flow as: a creation tool returns an explicit handle (a run ID, a transaction token), and every later tool accepts that handle as a parameter. State the model can see and pass is auditable and replayable; hidden server state is neither. This is the FSM discipline from the harness loop, expressed over a stateless wire.
+The Streamable HTTP transport can carry a transport-level session (an `Mcp-Session-Id`), but **there is no protocol-level guarantee of server-side application state**, and sessions expire and drop. Don't assume the work you did in one tool call is still remembered in the next. Model any multi-step flow explicitly: a creation tool returns a handle (a run ID, a transaction token), and every later tool accepts that handle as a parameter. State the model can see and pass is auditable and replayable; hidden server state is neither. This is the FSM discipline from the harness loop, expressed over a stateless wire.
 
 ## Keep the tool count low
 
-Model accuracy degrades noticeably once the exposed surface passes roughly **10–20 tools** — wrong tool, wrong params, redundant calls. So:
+Model accuracy degrades noticeably once the exposed surface passes roughly **15–20 tools** (the first cracks show as low as ~10) — wrong tool, wrong params, redundant calls. So:
 
 - Don't advertise everything a server *can* do. Advertise capabilities and let the host **select a subset** for the task at hand (the pattern behind subset-selection headers).
 - Consolidate multi-call chains into workflow-shaped tools before adding more. A server with 8 sharp tools beats one with 40 thin wrappers.

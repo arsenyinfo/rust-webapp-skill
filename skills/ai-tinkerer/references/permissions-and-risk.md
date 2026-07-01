@@ -4,7 +4,7 @@ The model proposes an action; the harness classifies its risk and enforces permi
 
 ## Risk taxonomy
 
-Every tool is tagged with exactly one class — its *worst* effect, not its typical one. Baseline classes, lowest to highest blast radius:
+Every tool carries one **primary class** — its *worst* blast-radius effect, not its typical one — plus, optionally, one or more orthogonal **overlay** tags (`regulated_data`, `security_sensitive`) that ratchet the gate stricter without changing the primary. Baseline primary classes, lowest to highest blast radius:
 
 - **read_public** — reads data anyone could see (public docs, open web, public repo). No side effect.
 - **read_private** — reads data behind auth the caller is entitled to (private repo, internal wiki, a user's own inbox). Leaks are the risk, not mutation.
@@ -15,10 +15,12 @@ Every tool is tagged with exactly one class — its *worst* effect, not its typi
 - **delete_or_destructive** — removes or overwrites data such that recovery is hard or impossible (drop table, force-push, delete branch/release).
 - **financial_or_billing** — moves money or commits spend (payment, refund, provisioning a paid resource, changing a plan).
 - **privileged_access** — grants, escalates, or uses elevated authority (add IAM role, share a credential, act as another principal).
-- **security_sensitive** — touches auth, secrets, or the security posture itself (rotate/read a key, change a permission policy, edit a firewall rule).
-- **regulated_data** — reads or moves data under legal/compliance regime (PII/PHI, payment card data, export-controlled). Class is set by the *data*, independent of the operation.
+And the two overlays, which layer *on top of* whatever primary class applies:
 
-A tool that spans two classes is tagged with the higher. `regulated_data` and `security_sensitive` are orthogonal overlays — a read of PHI is still `read_private` *and* `regulated_data`, and the stricter gate wins.
+- **security_sensitive** (overlay) — touches auth, secrets, or the security posture itself (rotate/read a key, change a permission policy, edit a firewall rule).
+- **regulated_data** (overlay) — reads or moves data under a legal/compliance regime (PII/PHI, payment card data, export-controlled). Set by the *data*, independent of the operation.
+
+When a tool spans two blast-radius classes, its primary is the higher of them. Overlays don't compete with the primary — they stack: a read of PHI is `read_private` (primary) with a `regulated_data` overlay, and the strictest of the applicable gates wins.
 
 ## Permission matrix
 

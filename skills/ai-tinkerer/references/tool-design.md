@@ -19,6 +19,8 @@ Verb-first, spelled out, no abbreviations (`calculate_total`, not `calc_total`).
 
 Namespace by service and resource once scopes collide: `repo.search`, `repo.read_file`, `deploy.prepare`, `deploy.commit`. The prefix carries the boundary so `read(id)` doesn't mean three different things. (Prefix-vs-suffix has measurable, model-dependent selection effects — pick based on your evals, not taste.)
 
+Mind the provider boundary: native OpenAI/Anthropic function names must match `[A-Za-z0-9_-]{1,64}` — **no dots**. The dotted forms here are a readable convention for your internal registry; on the wire, sanitize deterministically (`repo.search` → `repo__search`, the `__` separator platforms already use for MCP surfacing) and keep the mapping one-to-one so the namespace survives. Raw MCP tolerates `.`; the model-facing surface a provider exposes often does not.
+
 Reject overloaded verbs outright: `execute`, `run`, `do`, `manage`, `process`, `handle`. A tool named `manage_users` has no contract — it's a freeform instruction slot wearing a schema. Decompose it.
 
 ## Descriptions are engineered contracts
@@ -97,7 +99,7 @@ The draft/commit split that produces the blocked case is a risk concern, covered
 
 ## Tool visibility
 
-Selection accuracy degrades as the surface grows — past roughly 15–20 concurrently visible tools the model starts picking wrong. Don't expose the whole registry at once. Reveal subsets per task: a base set always on, task-scoped tools after you classify the request ("run the tests" surfaces `run_tests` and hides `deploy_service`), connector tools after auth, sensitive tools only when needed and approved. Implement this in the harness, never by hoping the model ignores irrelevant entries.
+Selection accuracy degrades as the surface grows — past roughly 15–20 concurrently visible tools the model starts picking wrong (field reports put the first cracks as low as ~10). Don't expose the whole registry at once. Reveal subsets per task: a base set always on, task-scoped tools after you classify the request ("run the tests" surfaces `run_tests` and hides `deploy_service`), connector tools after auth, sensitive tools only when needed and approved. Implement this in the harness, never by hoping the model ignores irrelevant entries.
 
 ## Before you add a tool
 

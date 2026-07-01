@@ -6,9 +6,9 @@ Context is a finite resource. Every token you spend on capability the model does
 
 A skill reveals detail in three levels, and each level you *don't* trigger costs you nothing:
 
-1. **Metadata — `name` + `description`, always pre-loaded.** This is the only part that lives in the system prompt for every session, whether or not the skill fires. Budget it like it's expensive, because at scale it is: ~80 tokens per skill (measured median across a set of production skills; a whole library of ~17 ran ~1,700 tokens combined). Keep it tight. A hundred skills at 80 tokens is 8k tokens of always-on tax before the agent has done anything.
+1. **Metadata — `name` + `description`, always pre-loaded.** This is the only part that lives in the system prompt for every session, whether or not the skill fires. Budget it like it's expensive, because at scale it is: on the order of ~80 tokens per skill (measured median across a set of production skills). Keep it tight. A hundred skills at 80 tokens is 8k tokens of always-on tax before the agent has done anything.
 2. **`SKILL.md` body — read on trigger.** Loaded only when the description matches the task. Keep it under ~500 lines / ~5000 tokens. The body is a *router and operating manual*, not a manual dump: state the workflow, point to references, stop. If it's creeping past 500 lines, you're putting reference depth in the body.
-3. **Bundled references and scripts — read/executed on demand.** A reference file enters context only when the body sends the agent to it. A script's *output* enters context; its **code never does** — the agent runs `scaffold_project webapp`, sees the result, and pays zero tokens for the 300 lines that produced it. This is the whole trick: deterministic work priced at output size, not source size.
+3. **Bundled references and scripts — read/executed on demand.** A reference file enters context only when the body sends the agent to it. A script the agent *runs* costs only its **output** — the agent runs `scaffold_project webapp`, sees the result, and pays zero tokens for the 300 lines that produced it. (A script bundled as a worked example the agent is told to *read* is a reference, priced like one — that's a deliberate choice, not the run path.) This is the whole trick: deterministic work priced at output size, not source size.
 
 The discipline is the same at every layer of the harness — tool surfaces, connectors, skills. Front-load nothing you can defer.
 
@@ -31,7 +31,13 @@ Tag every instruction you write with how much latitude it grants, and match the 
 | **Medium** | Parameterized script, a preferred pattern named | One way is better but not the only way. Give the default, allow deviation. |
 | **Low** | Exact script, few params, verbatim sequence | The operation is fragile, consistency is critical, or a specific order must hold. Prescribe it and treat variation as a defect. |
 
-The two failure modes are symmetric: locking down a judgment call (over-constraint → brittleness) and leaving a fragile op open (under-constraint → the agent improvises and breaks it). Annotate rules so a reviewer can see at a glance which you've done.
+The two failure modes are symmetric: locking down a judgment call (over-constraint → brittleness) and leaving a fragile op open (under-constraint → the agent improvises and breaks it). Annotate rules so a reviewer can see at a glance which you've done. Worked example — three rules from a deploy agent, tagged:
+
+- **[L]** "Run `deploy.prepare` and show the plan before any `deploy.commit`." Fragile, irreversible, one correct order — prescribe it verbatim.
+- **[M]** "Prefer `search_logs(query)` over paging raw log files; fall back to paging only when the query returns nothing." A default with a named exception.
+- **[H]** "Decide which failing test to investigate first." Pure judgment; enumerate nothing.
+
+The tag is the reviewer's handle: an **[H]** on an irreversible action, or an **[L]** on a judgment call, is the defect to flag.
 
 ## Code as tool AND documentation
 
