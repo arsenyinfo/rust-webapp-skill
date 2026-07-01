@@ -64,6 +64,10 @@ Every run emits one structured trace. If a human cannot read a single trace and 
 
 The trace is an append-only log: emit an *intent/decision* event (chose a tool, gated an action) the moment the decision is made — before execution — and emit the matching *result/outcome* event once the action returns, so a crash mid-step still leaves the intent recorded even if no result follows. Above all, tag every event with **who decided it**: a *model decision* (chose a tool), a *harness decision* (gated, denied, retried), or a *tool execution* (the side effect itself). Collapsing these three is how you spend an hour blaming the model for a permission the harness denied.
 
+## Replay
+
+A trace you can *replay* is worth far more than one you can only read. Replay re-runs a recorded session against the model to see whether behavior changed — the backbone of regression testing, model-swap evaluation, and debugging a production incident without reproducing its live conditions. It only works if the run was deterministic enough to reconstruct, which is a design constraint, not an afterthought: **freeze the model version** (a silent model swap is a top regression source), **version tool schemas** so a replayed call resolves the same contract, **serialize context deterministically** (stable tool order, stable JSON keys — the cache-aware ordering from context engineering pays off here too), and **feed recorded tool results back instead of re-executing** so a replay never re-fires a real side effect. A harness that can't replay its own traces is one where every regression must be caught live, in production.
+
 ## Launch gate
 
 Before you ship, or before you move an agent up a maturity level, every item passes — no exceptions bought with "we'll fix it after launch":

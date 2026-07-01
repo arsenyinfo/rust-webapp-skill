@@ -35,6 +35,10 @@ Model accuracy degrades noticeably once the exposed surface passes roughly **15�
 - Consolidate multi-call chains into workflow-shaped tools before adding more. A server with 8 sharp tools beats one with 40 thin wrappers.
 - If an aggregator merges many servers, the combined count is what the model pays for. Budget across servers, not per server.
 
+## Present servers as code APIs when the token math demands it
+
+Loading every tool definition into context and round-tripping every intermediate result through the model is expensive at scale. The alternative: expose the MCP servers as a **code API the agent calls inside a code-execution sandbox**. The agent writes a short script that calls the tools, chains them, filters, and returns only the answer — tool schemas load on demand, and intermediate data (the 10k-row query, the full file listing) stays in the sandbox instead of flooding context. Reported token reductions run very large (up to ~98.7% in one Anthropic example). Use it when a task fans across many tools or moves bulky intermediate data; the sandbox boundary is the same one that contains a risky tool, so you get the token win and the isolation together. Skip it for a two-call flow where the ceremony costs more than it saves.
+
 ## Server boundaries — the real safety lever
 
 Design **domain-specific** servers: `repo`, `db-migration`, `deploy`, `issue-tracker`, `eval`. A domain server has a bounded, classifiable, wrappable surface. You can reason about its worst action.

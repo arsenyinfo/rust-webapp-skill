@@ -19,7 +19,7 @@ Verb-first, spelled out, no abbreviations (`calculate_total`, not `calc_total`).
 
 Namespace by service and resource once scopes collide: `repo.search`, `repo.read_file`, `deploy.prepare`, `deploy.commit`. The prefix carries the boundary so `read(id)` doesn't mean three different things. (Prefix-vs-suffix has measurable, model-dependent selection effects — pick based on your evals, not taste.)
 
-Mind the provider boundary: native OpenAI/Anthropic function names must match `[A-Za-z0-9_-]{1,64}` — **no dots**. The dotted forms here are a readable convention for your internal registry; on the wire, sanitize deterministically (`repo.search` → `repo__search`, the `__` separator platforms already use for MCP surfacing) and keep the mapping one-to-one so the namespace survives. Raw MCP tolerates `.`; the model-facing surface a provider exposes often does not.
+Mind the provider boundary: native OpenAI/Anthropic function names must match `[A-Za-z0-9_-]{1,64}` — **no dots**. The dotted forms here are a readable convention for your internal registry; on the wire, sanitize deterministically (`repo.search` → `repo__search` — `__` is a common flattened-namespace separator) and keep the mapping one-to-one so the namespace survives. Raw MCP tolerates `.`; the model-facing surface a provider exposes often does not.
 
 Reject overloaded verbs outright: `execute`, `run`, `do`, `manage`, `process`, `handle`. A tool named `manage_users` has no contract — it's a freeform instruction slot wearing a schema. Decompose it.
 
