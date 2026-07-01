@@ -1,0 +1,75 @@
+# MCP and connectors
+
+An MCP server is a **capability provider**, not a trust boundary. It hands the model a menu of tools, resources, and prompts over a wire protocol. It does not — and cannot — decide whether the model is allowed to call any of them. That decision stays where it always was: in your harness. Wiring in a server does not import its safety posture; it imports its attack surface.
+
+## The one principle
+
+**An MCP tool is subject to the same risk classification and permission gates as a tool you wrote yourself.** The transport is irrelevant to trust. A `delete_repo` reached over stdio is exactly as destructive as one defined in-process. So:
+
+- Classify every advertised tool by risk (read → local write → external comms → destructive/financial/privileged) at registration time, the same taxonomy you apply to native tools. See [permissions-and-risk.md](permissions-and-risk.md).
+- Do **not** trust a tool because it came from an MCP server — not even a first-party one. A server can add, rename, or re-scope tools between calls; re-validate the advertised surface, don't cache trust.
+- Treat every tool result as untrusted content, never as instructions. A compromised or hostile server returns text engineered to steer the model. Result text is data. See the context-hygiene rule in the SKILL doctrine.
+- The harness owns approval, truncation, redaction, and logging around the call. The server owns only *doing the thing*.
+
+## Naming (matches native tool discipline)
+
+- Names are 1–128 chars, case-sensitive, `[A-Za-z0-9_.-]` only, and unique within a server.
+- Aggregators that fan several servers into one surface **should** prefix each name with a server identifier so `github.search` and `gitlab.search` don't collide. Resolve cross-server collisions at the aggregation layer, not by hoping.
+- Same non-collapsing-verb rule as native tools: one verb, one meaning, no `get_file`/`fetch_file`/`download_file` triplets. The model must never guess which synonym fires the side effect. See [tool-design.md](tool-design.md).
+
+## Result and output conventions
+
+- **Errors in-band.** Report tool failures inside the result object via `isError`, not as a protocol-level (JSON-RPC) error. A protocol error is invisible to the model; an in-band error is an observation it can read and recover from. Every result — success, partial, blocked, failure — is the next input to the loop.
+- **Structured output.** Declare an `outputSchema` and return `structuredContent`; also return a text block for backward compatibility with hosts that don't consume structured output. Validate the payload against the schema before returning it, so the model never sees a shape you didn't promise.
+- **Semantic fields, bounded size.** Return names, not raw UUIDs; paginate, filter, and truncate with sane defaults rather than dumping. The harness truncates again as a backstop.
+
+## State via explicit handles
+
+MCP has **no protocol-level session**. Do not assume server-side state survives between calls. Model any multi-step flow as: a creation tool returns an explicit handle (a run ID, a transaction token), and every later tool accepts that handle as a parameter. State the model can see and pass is auditable and replayable; hidden server state is neither. This is the FSM discipline from the harness loop, expressed over a stateless wire.
+
+## Keep the tool count low
+
+Model accuracy degrades noticeably once the exposed surface passes roughly **10–20 tools** — wrong tool, wrong params, redundant calls. So:
+
+- Don't advertise everything a server *can* do. Advertise capabilities and let the host **select a subset** for the task at hand (the pattern behind subset-selection headers).
+- Consolidate multi-call chains into workflow-shaped tools before adding more. A server with 8 sharp tools beats one with 40 thin wrappers.
+- If an aggregator merges many servers, the combined count is what the model pays for. Budget across servers, not per server.
+
+## Server boundaries — the real safety lever
+
+Design **domain-specific** servers: `repo`, `db-migration`, `deploy`, `issue-tracker`, `eval`. A domain server has a bounded, classifiable, wrappable surface. You can reason about its worst action.
+
+Treat these as **high-risk by default** — they collapse straight back into the `execute_anything` anti-pattern the whole skill exists to prevent:
+
+- **General shell servers** (`run_command`, `bash`) — one tool, unbounded blast radius, unclassifiable.
+- **Universal API callers** (`http_request`, `call_any_endpoint`) — the model picks the side effect at runtime; you cannot gate what you cannot name.
+- **Unrestricted cloud-admin or database servers** (`aws`, `kubectl`, `write_database`) — privileged and destructive behind a single verb.
+
+If you must expose one, wrap it: narrow it to specific commands/endpoints/tables, split draft from commit, and gate every risky path. An unwrapped general server is a Critical finding in an audit.
+
+## Transport and security, in brief
+
+- Prefer the current Streamable HTTP transport over deprecated SSE.
+- Require auth on HTTP transports (OAuth 2.1); stdio inherits the process's trust boundary — mind what that process can reach.
+- Make tool calls **idempotent** with client-generated request IDs so a retry after a dropped response doesn't double-fire a side effect.
+- **Version the surface** and advertise capabilities so the host negotiates rather than guesses.
+
+## Connector safety checklist (the host/harness enforces every item)
+
+- [ ] **User consent** recorded before a server is connected and before privileged tools run.
+- [ ] **Tool allowlist** — only explicitly permitted tools are callable, not the whole advertised menu.
+- [ ] **Approval gates** on every write/external/destructive/financial/privileged tool (draft → commit).
+- [ ] **Result truncation** with a hard cap, independent of what the server returns.
+- [ ] **Secret redaction** on inbound results *and* outbound args — credentials never reach the model or the trace.
+- [ ] **Logging** of every call: tool, args (redacted), risk class, permission decision, outcome.
+- [ ] **Server trust boundaries** — first-party vs. third-party classified; third-party servers start at minimum privilege.
+- [ ] **Side-effect classification** attached to every tool at registration; unclassified ⇒ treated as highest risk, not lowest.
+
+## Install-time caution
+
+Do not pipe an untrusted third-party install script straight to a shell (`curl … | sh` off a random mirror). Server mirrors get taken over; a namespace-squatted install script runs as you, before any harness gate exists. Prefer the canonical upstream, pin a known version, and verify the artifact.
+
+## See also
+
+- [permissions-and-risk.md](permissions-and-risk.md) — the risk taxonomy and permission matrix every MCP tool is classified against.
+- [tool-design.md](tool-design.md) — non-collapsing naming, typed params, and result/error/blocked envelopes, all of which apply identically to MCP tools.
