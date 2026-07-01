@@ -2,6 +2,8 @@
 
 **A harness you cannot observe cannot be improved, and evals are what let you expand autonomy on evidence instead of vibes.** These are the two instruments that turn "the agent seems fine" into a number you can gate on. Without traces you are debugging blind; without evals you are promoting an agent to Level 4 because the demo worked once. Neither is optional before you widen what the agent may do to the world.
 
+**Scale the instrument to the stakes.** For a small or personal harness, the pareto point is a handful of realistic, state-verified cases you re-run by hand plus one trace you can read — not a pass^k dashboard and a held-out test set. The heavier machinery here (pass^k, held-out splits, the full launch gate) earns its cost when a regression moves money, touches many users, or ships unattended. Build up to it; don't front-load it onto an agent that can't do much damage.
+
 ## Task-grounded eval sets
 
 Toy prompts measure nothing. "Summarize this paragraph" tells you your model works; it tells you nothing about *your harness* — tool routing, permission gates, error recovery, state transitions. Build a small set (start with 15–40) of **realistic, multi-tool tasks grounded in real systems**: a real (or realistically seeded) database, real tool schemas, real policy rules. Each task should require several tool calls and at least one decision that a naive agent gets wrong — a permission it must ask for, an ambiguous instruction it must narrow, an error it must recover from.
@@ -70,7 +72,7 @@ A trace you can *replay* is worth far more than one you can only read. Replay re
 
 ## Launch gate
 
-Before you ship, or before you move an agent up a maturity level, every item passes — no exceptions bought with "we'll fix it after launch":
+Before you ship a harness *with real blast radius*, or move an agent up a maturity level, the applicable items pass — no exceptions bought with "we'll fix it after launch." A read-only or personal agent needs only the items that bite it (a result envelope, redaction, a readable trace); the full list is for an agent that acts on the world unattended:
 
 - [ ] registry lint passes (tools well-formed, schemas valid)
 - [ ] tool-name collision check passes (no `get_file`/`fetch_file`/`download_file` ambiguity)

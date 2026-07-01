@@ -27,6 +27,27 @@ Reach for this skill when the work is *about the runtime around a model*, not th
 
 **When not to activate.** Ordinary application features that don't change agent behavior, tool execution, context assembly, permissions, or validation. If nothing the model *does* changes, this is not your skill. A pure prompting tweak is not harness work either.
 
+## Right-size the harness
+
+Most harnesses are small: a few tools, a read-mostly loop, a human watching. Everything in this skill is a **superset** — apply the slice the stakes justify, not all of it. Over-building a harness (a permission matrix for a read-only agent, pass^k evals for a weekend script) is as real a defect as under-securing one. Shipping before "weeks of evals" is correct when the agent can't do much damage.
+
+**Scale rigor to blast radius, reversibility, and audience.** Add each heavy piece when a specific pressure appears — not before:
+
+- **Irreversible / external / destructive / spends money** → draft/commit split + an approval gate on *those* actions (not every action).
+- **Unattended or long-running** → budgets, a kill switch, real traces.
+- **Multi-user / shared state / regulated data** → the full risk taxonomy and permission matrix.
+- **Regressions cost real money** → pass^k, held-out sets, a launch gate.
+
+**The minimum that pays off almost everywhere** — do this much even for a throwaway:
+
+1. Narrow, typed, non-collapsing tool names.
+2. A structured result envelope, including errors that say what to do next.
+3. Draft/commit split for the *irreversible* actions only.
+4. One trace you can read.
+5. A few realistic cases you can re-run.
+
+Ship that, then add rigor as the agent's reach grows. The rest of this skill is how to add it well.
+
 ## Doctrine
 
 Every design and audit decision traces back to one of these. They are stated once, sharply, here; the references expand the ones with real depth.
@@ -42,7 +63,7 @@ Every design and audit decision traces back to one of these. They are stated onc
 9. **One recommended way to do X.** Pick a default and document it; frame alternatives as exceptions with a stated trigger. Option paralysis is a harness defect. If synonyms must exist, the harness aliases them internally and the model sees one canonical surface.
 10. **Scaffolding is a tool, not a prompt.** A `scaffold_project(type)` that emits correct, validated boilerplate beats 500 words describing structure. Derive from a manifest; don't let the model guess plugin names, paths, or resource keys.
 11. **Repeated failures become harness features.** When the agent fails the same way twice, encode the fix as a validator, tool, doc, eval, or policy — not one more line of prompt advice. Prompts that accrete edge cases are a symptom; the cure is deterministic. See [harness-loop § improvement](references/harness-loop.md).
-12. **Evals gate autonomy.** Don't expand what an agent may do on vibes. Measure reliability (pass^k, not just average accuracy) on task-grounded, state-verified cases before moving up a maturity level. See [evals-and-observability](references/evals-and-observability.md).
+12. **Evidence gates autonomy — scaled to stakes.** Don't expand what an agent may *do to the world* on vibes. The evidence bar rises with blast radius: a few re-runnable cases for a read-only agent, pass^k on state-verified tasks before you let one act unattended. See [evals-and-observability](references/evals-and-observability.md).
 13. **Observable by default.** Structured tool logs, normalized observations, trace IDs, permission decisions, run summaries — so behavior is debuggable without exposing hidden reasoning.
 
 ## Harness maturity levels
@@ -58,7 +79,7 @@ Move up a level only when evals show the level below is insufficient.
 | 4 | Policy-bounded autonomous | Execute low-risk actions within strict scopes, budgets, audits. |
 | 5 | Long-running goal worker | Continue across sessions toward a measurable objective. |
 
-**Hard default: start at Level 2 or 3. Never start at 4 or 5.** Autonomy is earned with eval evidence, not chosen at design time.
+**Default to the lowest level that does the job**, and earn higher autonomy with evidence rather than choosing it at design time. A read-only agent can live at Level 1 with almost no ceremony; Levels 4–5, where the agent acts unattended, are where the eval bar and the safety machinery become non-negotiable.
 
 ## Workflow A — design a new harness
 

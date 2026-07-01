@@ -2,6 +2,8 @@
 
 The model proposes an action; the harness classifies its risk and enforces permission **before any side effect fires**. The model does not remember permission rules — code does. Approval records live **outside the model-editable prompt**: a compaction, a jailbroken tool result, or a self-edited instruction must never be able to grant an approval. If safety depends on the model choosing to honor a sentence, it isn't safety. Every gate in this file is a deterministic check the execution engine runs, not advice the prompt hopes the model follows.
 
+**Right-size this.** The taxonomy and matrix below are a superset for a harness that can touch shared state, money, or many users. A read-only or local-only agent may only ever hit `read_public` / `read_private` / `local_write` — for that, one written rule ("reads auto-run; the single write path is draft/commit") beats a per-tool matrix. Add classes, rows, and gates as the agent's reach grows; don't stand up the whole apparatus for an agent that can't reach past its own sandbox.
+
 ## Risk taxonomy
 
 Every tool carries one **primary class** — its *worst* blast-radius effect, not its typical one — plus, optionally, one or more orthogonal **overlay** tags (`regulated_data`, `security_sensitive`) that ratchet the gate stricter without changing the primary. Baseline primary classes, lowest to highest blast radius:
