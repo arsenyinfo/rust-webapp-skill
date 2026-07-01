@@ -140,7 +140,7 @@ Repeat Phases 1–6 in rounds, with a bounded fan-out per round (scale explorers
 
 ## Morning report
 
-Write the report to a file (e.g. `ranger-report-<area>.md` at the repo root) as well as summarizing it in chat — an overnight run's output must survive to be read in the morning, not scroll away in a transcript. The report has four sections:
+Write the report to a file (e.g. `/tmp/ranger-report-<area>.md`) as well as summarizing it in chat — an overnight run's output must survive to be read in the morning, not scroll away in a transcript. The report has four sections:
 
 - **Shipped**: each draft PR (link/number), its theme, and one line on what it fixes.
 - **Needs-your-call**: findings held back for judgment (behavior changes, contract/security, design-taste edits to public surface, anything untestable on the current baseline), each with `file:line` evidence and no code.
