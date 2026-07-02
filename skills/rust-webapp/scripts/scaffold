@@ -25,17 +25,20 @@ if [ "$OUTPUT_DIR" = "." ]; then
     OUTPUT_DIR="$(pwd)"
 fi
 
-# only fail on existing dir if it contains app files (Cargo.toml)
+# the marker is written after the template copy and removed once Neon setup
+# succeeds, so its presence proves a prior run of THIS script died mid-way -
+# never treat someone else's Rust project as a failed scaffold
+MARKER="$OUTPUT_DIR/.scaffold-incomplete"
 if [ -f "$OUTPUT_DIR/Cargo.toml" ]; then
-    if [ -f "$OUTPUT_DIR/.env" ]; then
-        echo "Error: Directory already contains an app: $OUTPUT_DIR"
-        exit 1
+    if [ -f "$MARKER" ] && [ ! -f "$OUTPUT_DIR/.env" ]; then
+        echo "=== Prior scaffold incomplete, rerunning Neon setup ==="
+        cd "$OUTPUT_DIR"
+        APP_NAME="$APP_NAME" ./scripts/neon-setup
+        rm -f "$MARKER"
+        exit 0
     fi
-    # app files but no .env: prior run failed at the Neon step - just rerun it
-    echo "=== App files already present, rerunning Neon setup ==="
-    cd "$OUTPUT_DIR"
-    APP_NAME="$APP_NAME" ./scripts/neon-setup
-    exit 0
+    echo "Error: Directory already contains an app: $OUTPUT_DIR"
+    exit 1
 fi
 
 echo "=== Scaffolding: $APP_NAME ==="
@@ -47,6 +50,7 @@ echo ""
 mkdir -p "$OUTPUT_DIR"
 cp -r "$TEMPLATE_DIR"/* "$OUTPUT_DIR/"
 rm -rf "$OUTPUT_DIR/target" "$OUTPUT_DIR/Cargo.lock" "$OUTPUT_DIR/.env"
+touch "$MARKER"
 
 echo "Template copied"
 echo ""
@@ -55,6 +59,7 @@ echo ""
 echo "=== Setting up Neon database ==="
 cd "$OUTPUT_DIR"
 APP_NAME="$APP_NAME" ./scripts/neon-setup
+rm -f "$MARKER"
 
 echo ""
 echo "=== Done ==="

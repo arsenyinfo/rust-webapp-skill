@@ -83,7 +83,7 @@ Alternative: use match syntax in template:
 ```rust
 // WRONG - hides real errors
 if result.is_err() {
-    return Err(AppError::internal("Already voted"));
+    return Err(anyhow::anyhow!("Already voted").into());
 }
 
 // CORRECT - inspect actual error
