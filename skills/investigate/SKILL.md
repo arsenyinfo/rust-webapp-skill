@@ -25,6 +25,8 @@ Find the mechanism before fixing. This is a 5-why-like ladder, but every step mu
 7. **Root cause**: name the bad assumption, missing invariant, design gap, process gap, or dependency behavior behind the mechanism.
 8. **Fix options**: propose the smallest safe fix, any broader cleanup worth considering, and the test/monitoring check that prevents recurrence.
 
+If the mechanism is evident within the first evidence pass, collapse the remaining steps and go straight to the Output — do not manufacture an investigation. Fan out subagents for broad evidence sweeps; if the Codex companion is available, use it for a second opinion on a contested mechanism.
+
 ## Evidence Map
 
 Before collecting remote evidence, write a short map:
@@ -94,4 +96,3 @@ Use these questions as a guide, not a template to fill mechanically:
 - Do not overfit to one observed failure. Fix the underlying mechanism generically.
 - If the root cause requires changing scope, design, API, data contract, or acceptance criteria, surface that as a separate decision rather than hiding it in a local fix.
 - Keep the investigation scoped to the symptom unless evidence shows a broader fault.
-- Actively use subagents during the investigation. If Codex companion is available, spawn its subagent for second opinion too. 
