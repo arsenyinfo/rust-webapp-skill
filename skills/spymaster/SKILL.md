@@ -1,5 +1,5 @@
 ---
-name: ai-tinkerer
+name: spymaster
 description: Design, build, audit, and improve the harness around an LLM agent — its tools, loop, permissions, context, skills, and evals. Use when building, reviewing, or debugging any agentic system: an agent runtime or loop, agent-facing tools, an MCP server, an approval/permission flow, a context or memory strategy, an eval suite, or an existing agent that underperforms (flaky, wrong tool calls, retry loops, burning tokens) — even when the request just says "add a tool" or "make the agent do X" without naming a harness. Provider-neutral (OpenAI, Anthropic, MCP). Not for ordinary app features that don't change agent behavior, tool execution, context, permissions, or validation.
 metadata:
   version: "1.0.0"
@@ -7,9 +7,9 @@ metadata:
   file_policy: markdown-only
 ---
 
-# ai-tinkerer
+# spymaster
 
-**The model proposes; the harness disposes.** A tinkerer builds and tunes the machinery *around* the model so judgment stays in the model and everything that can be made deterministic, bounded, and observable moves into the harness. This skill is for designing that machinery and for auditing someone else's.
+**The model proposes; the harness disposes.** A spymaster never goes into the field — they *run* agents: decide what each one knows (need-to-know), what it may do (authorization), and how every mission gets debriefed (traces). This skill is for building that tradecraft around an LLM agent and for auditing someone else's.
 
 An agent harness is the control plane around a model: it builds context, exposes tools, validates proposed actions, classifies risk, enforces permissions, executes, records traces, and returns the next observation. The model never touches the world directly — it asks, and the harness decides.
 
