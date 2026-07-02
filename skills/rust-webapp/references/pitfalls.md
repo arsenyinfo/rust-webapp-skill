@@ -19,14 +19,14 @@ let tasks = sqlx::query_as!(Task, "SELECT id, title, completed FROM tasks")
 
 ## Route Parameters: {param} not :param
 
-Axum 0.7+ uses `{param}` syntax. Using `:param` **passes cargo check but panics at runtime**:
+Axum 0.8+ uses `{param}` syntax (0.7 used `:param`). Using `:param` **passes cargo check but panics at runtime**:
 
 ```rust
 // WRONG - compiles but panics at startup
 .route("/:id/edit", get(edit_form))
 .route("/:id", post(update).delete(delete))
 
-// CORRECT - Axum 0.7+ syntax
+// CORRECT - Axum 0.8+ syntax
 .route("/{id}/edit", get(edit_form))
 .route("/{id}", post(update).delete(delete))
 ```
@@ -75,7 +75,7 @@ async fn index(Extension(user): Extension<Option<User>>) -> Result<Html<String>,
 Alternative: use match syntax in template:
 ```html
 {% match user %}
-{% when Some with (u) %}Hello, {{ u.email }}{% when None %}Guest{% endmatch %}
+{% when Some(u) %}Hello, {{ u.email }}{% when None %}Guest{% endmatch %}
 ```
 
 ## Don't Use is_err() Blindly
@@ -98,8 +98,13 @@ match result {
 
 ## PostgreSQL Type Mapping
 
-- `SERIAL` → `i32` (use for most tables)
-- `BIGSERIAL` → `i64` (only for billions of rows)
+| PostgreSQL | Rust | Use Case |
+|------------|------|----------|
+| `SERIAL` | `i32` | Most tables (up to 2B rows) |
+| `BIGSERIAL` | `i64` | Only if you need billions of rows |
+| `TEXT` | `String` | Variable-length strings |
+| `BOOLEAN` | `bool` | True/false |
+| `TIMESTAMP` | `chrono::NaiveDateTime` | Date/time (add `chrono` feature to sqlx) |
 
 Mismatched types compile but cause runtime confusion.
 

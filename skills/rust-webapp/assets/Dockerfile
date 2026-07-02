@@ -19,7 +19,6 @@ COPY --from=builder /webapp .
 COPY templates ./templates
 COPY static ./static
 COPY migrations ./migrations
-COPY .env* ./
 EXPOSE 80
 ENV PORT=80
 CMD ["./webapp"]

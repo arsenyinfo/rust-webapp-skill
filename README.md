@@ -7,7 +7,7 @@ Just another collection of skills for coding agents.
 - `ranger`: unattended overnight sweep of an area — fan out explorers, fix tiny bugs and dirty code, verify with an independent model, open themed draft PRs.
 - `dialectic`: prove and counter-prove claims with parallel agents before concluding. 
 - `investigate`: evidence-first debugging and root cause investigation. 
-- `rust-webapp`: build full-stack Rust web apps with Axum, SQLx, HTMX, Alpine.js, and Neon. No React, no TypeScript, no Webpack, no Vite, no Babel, no yarn, no pnpm.
+- `rust-webapp`: build full-stack Rust web apps with Axum, SQLx, HTMX + Alpine.js (or DataStar for SSE-heavy UIs), and Neon. No React, no TypeScript, no Webpack, no Vite, no Babel, no yarn, no pnpm.
 - `ml-project`: opinionated workflow for ML projects.
 
 Kudos for inspiration and ideas go to:

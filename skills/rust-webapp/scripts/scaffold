@@ -27,8 +27,15 @@ fi
 
 # only fail on existing dir if it contains app files (Cargo.toml)
 if [ -f "$OUTPUT_DIR/Cargo.toml" ]; then
-    echo "Error: Directory already contains an app: $OUTPUT_DIR"
-    exit 1
+    if [ -f "$OUTPUT_DIR/.env" ]; then
+        echo "Error: Directory already contains an app: $OUTPUT_DIR"
+        exit 1
+    fi
+    # app files but no .env: prior run failed at the Neon step - just rerun it
+    echo "=== App files already present, rerunning Neon setup ==="
+    cd "$OUTPUT_DIR"
+    APP_NAME="$APP_NAME" ./scripts/neon-setup
+    exit 0
 fi
 
 echo "=== Scaffolding: $APP_NAME ==="
@@ -47,7 +54,7 @@ echo ""
 # setup neon branch
 echo "=== Setting up Neon database ==="
 cd "$OUTPUT_DIR"
-./scripts/neon-setup
+APP_NAME="$APP_NAME" ./scripts/neon-setup
 
 echo ""
 echo "=== Done ==="

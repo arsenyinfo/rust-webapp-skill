@@ -5,7 +5,8 @@
 #   ./scripts/neon-setup cleanup  # Delete branch, remove .env
 #
 # Requires: NEON_API_KEY, NEON_PROJECT_ID env vars
-# Optional: NEON_ROLE_NAME (defaults to neondb_owner)
+# Optional: APP_NAME (defaults to the app directory name)
+#           NEON_ROLE_NAME (defaults to neondb_owner)
 #           NEON_COMPUTE_SIZE (defaults to 0.25-1 CU)
 #           NEON_BRANCH_TTL (branch expiration, e.g., "2h", "1d", "7d")
 #
@@ -15,7 +16,7 @@ set -e
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 APP_DIR="$(cd "$SCRIPT_DIR/.." && pwd)"
-APP_NAME="$(basename "$APP_DIR")"
+APP_NAME="${APP_NAME:-$(basename "$APP_DIR")}"
 COMMAND="${1:-setup}"
 
 : "${NEON_API_KEY:?NEON_API_KEY required}"
