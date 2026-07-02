@@ -47,6 +47,8 @@ More tools is an anti-pattern. A registry of tools that each mirror one API endp
 
 Prefer `search_*` to any `list_*` that returns the world. The tool that consolidates a known multi-call chain saves context and removes the join the model would otherwise get wrong.
 
+This is the Unix ethos sized for agents: each tool does one thing well, with simple typed params, and composes cleanly — but the "one thing" is a user-meaningful task, not an API endpoint. Splitting by endpoint fragments a task across calls; lumping tasks behind one verb collapses meaning. Same defect either way: the tool boundary drawn somewhere other than the job.
+
 ## Bounded output
 
 Never stream unbounded data into the model. Every tool that can return a lot takes `limit` / `cursor` / `max_bytes` / `include_body` and enforces a default cap — treat ~25k tokens as the sane ceiling for a single response. When you truncate, say so: a `truncated: true` / `has_more` flag plus a cursor to continue, so the model knows the view is partial and how to page. For large artifacts (test runs, log dumps, exports), return a summary plus an `artifact_id` reference, not the payload.
@@ -93,7 +95,7 @@ Blocked — the action is real but gated on approval, so the model routes to the
   "next_actions": ["draft_email", "request_approval"] }
 ```
 
-Contrast the anti-pattern: `Error: failed`. It carries no code to branch on, no failing input, no fix, no next step — the model can only retry the same call or hallucinate a workaround. Keep `error_code` values stable and finite (`invalid_arguments`, `not_found`, `permission_denied`, `approval_required`, `conflict`, `timeout`, `rate_limited`, `non_idempotent_retry_blocked`) so the model — and your evals — can match on them.
+Contrast the anti-pattern: `Error: failed`. It carries no code to branch on, no failing input, no fix, no next step — the model can only retry the same call or hallucinate a workaround. Write Rust errors, not C++ errors: the failing input, the reason, and the exact next step — not an opaque dump the reader must decode. Keep `error_code` values stable and finite (`invalid_arguments`, `not_found`, `permission_denied`, `approval_required`, `conflict`, `timeout`, `rate_limited`, `non_idempotent_retry_blocked`) so the model — and your evals — can match on them.
 
 The draft/commit split that produces the blocked case is a risk concern, covered in [permissions-and-risk.md](permissions-and-risk.md); the tool-design duty here is only that the envelope routes the model there cleanly.
 

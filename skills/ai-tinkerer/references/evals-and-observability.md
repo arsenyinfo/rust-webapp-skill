@@ -4,6 +4,19 @@
 
 **Scale the instrument to the stakes.** For a small or personal harness, the pareto point is a handful of realistic, state-verified cases you re-run by hand plus one trace you can read — not a pass^k dashboard and a held-out test set. The heavier machinery here (pass^k, held-out splits, the full launch gate) earns its cost when a regression moves money, touches many users, or ships unattended. Build up to it; don't front-load it onto an agent that can't do much damage.
 
+## Trajectory analysis — the main improvement instrument
+
+Before you build a single eval, read your traces. Nothing surfaces what to fix like a whole trajectory read end-to-end: a dashboard tells you the pass rate moved; the trace shows the agent retrying a vague error five times, hesitating between a collapsing tool pair, or burning forty calls on boilerplate a scaffold should emit. The loop:
+
+1. **Sample recent runs** — the failures plus a few successes. Successes hide waste: thrashing, redundant calls, near-misses that happened to land.
+2. **Read each end-to-end** and name the failure mode in one line ("guessed the path", "retried a permanent error", "ignored `next_actions`").
+3. **Tally by frequency × cost** and fix the top three where the fix belongs — a validator, a tool, a schema constraint, a gate — per the improvement loop in [harness-loop](harness-loop.md).
+4. **Re-run the motivating cases**, keep each as a regression case, repeat.
+
+For a young harness this loop beats a full eval build-out: polish the top three errors, ship, read again. Graduate to the machinery below as the stakes grow.
+
+**Rubrics scale it.** When traces outgrow hand-reading, an LLM grader can read them for you — but only against a rubric. Free-form "grade this trace" drifts and flatters; a rubric with explicit per-dimension criteria ("acted on `next_actions` after an error: yes/no + evidence line") makes LLM judgment consistent, auditable, and comparable across runs. Anchor each score with what a pass and a fail look like, require trace evidence per judgment, and spot-check a sample against a human read (the review-agreement suite below) before trusting it at volume.
+
 ## Task-grounded eval sets
 
 Toy prompts measure nothing. "Summarize this paragraph" tells you your model works; it tells you nothing about *your harness* — tool routing, permission gates, error recovery, state transitions. Build a small set (start with 15–40) of **realistic, multi-tool tasks grounded in real systems**: a real (or realistically seeded) database, real tool schemas, real policy rules. Each task should require several tool calls and at least one decision that a naive agent gets wrong — a permission it must ask for, an ambiguous instruction it must narrow, an error it must recover from.

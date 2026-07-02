@@ -62,7 +62,7 @@ Every design and audit decision traces back to one of these. They are stated onc
 8. **Progressive disclosure everywhere.** Skills, connectors, and tool surfaces reveal detail on demand — metadata first, body on trigger, deep files/scripts only when needed. Don't front-load every capability into context. See [context-and-skills](references/context-and-skills.md).
 9. **One recommended way to do X.** Pick a default and document it; frame alternatives as exceptions with a stated trigger. Option paralysis is a harness defect. If synonyms must exist, the harness aliases them internally and the model sees one canonical surface.
 10. **Scaffolding is a tool, not a prompt.** A `scaffold_project(type)` that emits correct, validated boilerplate beats 500 words describing structure. Derive from a manifest; don't let the model guess plugin names, paths, or resource keys.
-11. **Repeated failures become harness features.** When the agent fails the same way twice, encode the fix as a validator, tool, doc, eval, or policy — not one more line of prompt advice. Prompts that accrete edge cases are a symptom; the cure is deterministic. See [harness-loop § improvement](references/harness-loop.md).
+11. **Repeated failures become harness features — and trajectories are where you find them.** Reading whole traces is the main instrument for improving an agent; nothing else shows you what to fix. When it fails the same way twice, encode the fix as a validator, tool, doc, eval, or policy — not one more line of prompt advice. Prompts that accrete edge cases are a symptom; the cure is deterministic. See [harness-loop § improvement](references/harness-loop.md).
 12. **Evidence gates autonomy — scaled to stakes.** Don't expand what an agent may *do to the world* on vibes. The evidence bar rises with blast radius: a few re-runnable cases for a read-only agent, pass^k on state-verified tasks before you let one act unattended. See [evals-and-observability](references/evals-and-observability.md).
 13. **Observable by default.** Structured tool logs, normalized observations, trace IDs, permission decisions, run summaries — so behavior is debuggable without exposing hidden reasoning.
 
@@ -83,7 +83,7 @@ Move up a level only when evals show the level below is insufficient.
 
 ## Workflow A — design a new harness
 
-Use when building an agent, toolset, MCP server, or runtime from scratch.
+Use when building an agent, toolset, MCP server, or runtime from scratch. Design from first principles — from the task, its worst-case risk, and its validation signals downward; not from an existing API surface upward, and not by copying a heavier harness than the job needs.
 
 1. **Classify the work first.** Name the goal (build/audit/scaffold), the agent domain, the **autonomy level** (answer/draft/approval/autonomous), the **risk class** of its worst action (read → local write → external comms → destructive/financial/privileged), the runtime surfaces (tools, MCP, shell, fs, db, deploy), and the validation signals available (tests, schemas, traces, human review). State assumptions in one line; only block on details that change risk, irreversibility, or the core architecture.
 2. **Draw the smallest useful boundary.** What does the harness own vs. the model? Default loop: build context → model call → parse action → validate schema → classify risk → permission gate → execute or pause for approval → structured observation → repeat within budget or stop → record trace. See [harness-loop](references/harness-loop.md).
@@ -109,13 +109,13 @@ Maturity level now, and what evals unlock the next level
 Implementation sequence (ordered, atomic)
 ```
 
-## Workflow B — audit an existing harness
+## Workflow B — work on an existing harness
 
-Use when reviewing an agent someone already built. Be adversarial: hunt for the action that shouldn't be possible, not reasons it's probably fine.
+Use for anything that already exists — extending it, improving it, or auditing it. **Map the surface before touching it**: inspect the tool registry, permission config, the loop, the context assembly, and a few recent traces. Read code and manifests; don't infer from names. The output is a one-screen mental map — tools with risk classes, loop shape, where approval pauses, what's observable. Then branch by goal:
 
-1. **Map before judging.** Inspect the tool registry, permission config, the loop, the context assembly, and any traces. Read the code and manifests; don't infer from names.
-2. **Walk the dimensions** below, gathering file/line evidence for each finding.
-3. **Rank by severity** and emit the report.
+- **Extend** — add a tool, capability, or connector. Design the delta with Workflow A's discipline, but match the existing conventions: the registry's verbs, its result envelope, its permission rows. A tool that's well-designed in isolation but breaks the house pattern is a defect.
+- **Improve** — the agent underperforms. Trajectory analysis is the instrument: read whole traces, rank failure modes by frequency × cost, fix the top few where the fix belongs (validator, tool, schema, gate — not prompt advice), re-run, repeat. See [evals-and-observability](references/evals-and-observability.md). Don't redesign what a targeted fix repairs.
+- **Audit** — adversarial review. Hunt for the action that shouldn't be possible, not reasons it's probably fine. Walk the dimensions below, gathering file/line evidence for each finding, rank by severity, and emit the report.
 
 **Audit dimensions:** harness boundary · model/harness responsibility split · tool naming (collapsing synonyms?) · tool schema quality (typed, bounded?) · tool result & error quality (actionable?) · determinism gaps (judgment doing a script's job?) · risk classification & permission gates · side-effect safety (draft/commit split where needed?) · state model · observability (can you debug from a trace?) · eval coverage (tied to real failures?) · context hygiene (untrusted content treated as instructions?).
 
@@ -144,7 +144,7 @@ Read selectively — pull the file the task needs, not all of them.
 - **[harness-loop.md](references/harness-loop.md)** — the loop, model/harness responsibility split, state machines, budgets/retries/stopping, the improvement loop, maturity-level detail.
 - **[context-and-skills.md](references/context-and-skills.md)** — progressive disclosure, authoring a SKILL.md (freedom-to-fragility, the bloat trap), context engineering, memory & compaction.
 - **[mcp-and-connectors.md](references/mcp-and-connectors.md)** — MCP server design, resources/tools/prompts, connector trust boundaries, tool-subset selection, error and output conventions.
-- **[evals-and-observability.md](references/evals-and-observability.md)** — task-grounded & state-verified evals, pass^k, held-out sets, the minimum trace record, launch gates, eval-case format.
+- **[evals-and-observability.md](references/evals-and-observability.md)** — trajectory analysis & rubric-based trace grading, task-grounded & state-verified evals, pass^k, held-out sets, the minimum trace record, launch gates, eval-case format.
 - **[audit-playbook.md](references/audit-playbook.md)** — the dimension-by-dimension audit checklist with concrete red flags, and the multi-reviewer aggregation pattern.
 
 ## Gotchas

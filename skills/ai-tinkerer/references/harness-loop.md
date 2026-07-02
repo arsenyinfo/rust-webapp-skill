@@ -101,7 +101,7 @@ Long-running goals need a **measurable done condition** and **checkpoints**: `la
 
 ## The improvement loop
 
-This is how a harness gets better, and it is a code loop, not a prompt loop:
+This is how a harness gets better, and it is a code loop, not a prompt loop. Its input is trajectory analysis — whole traces read end-to-end and failure modes ranked by frequency × cost (see [evals-and-observability](evals-and-observability.md)); aggregate metrics only tell you *that* something broke:
 
 ```
 agent fails or slows
