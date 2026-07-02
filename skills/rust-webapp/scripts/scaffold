@@ -30,7 +30,7 @@ fi
 # never treat someone else's Rust project as a failed scaffold
 MARKER="$OUTPUT_DIR/.scaffold-incomplete"
 if [ -f "$OUTPUT_DIR/Cargo.toml" ]; then
-    if [ -f "$MARKER" ] && [ ! -f "$OUTPUT_DIR/.env" ]; then
+    if [ -f "$MARKER" ]; then
         echo "=== Prior scaffold incomplete, rerunning Neon setup ==="
         cd "$OUTPUT_DIR"
         APP_NAME="$APP_NAME" ./scripts/neon-setup
