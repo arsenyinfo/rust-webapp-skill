@@ -1,6 +1,6 @@
 ---
 name: ai-tinkerer
-description: Design, build, and audit the harness around an LLM agent — its tools, loop, permissions, context, skills, and evals. Use when building or reviewing any agentic system: an agent runtime or loop, agent-facing tools, an MCP server, an approval/permission flow, a context or memory strategy, or an eval suite — even when the request just says "add a tool" or "make the agent do X" without naming a harness. Provider-neutral (OpenAI, Anthropic, MCP). Not for ordinary app features that don't change agent behavior, tool execution, context, permissions, or validation.
+description: Design, build, audit, and improve the harness around an LLM agent — its tools, loop, permissions, context, skills, and evals. Use when building, reviewing, or debugging any agentic system: an agent runtime or loop, agent-facing tools, an MCP server, an approval/permission flow, a context or memory strategy, an eval suite, or an existing agent that underperforms (flaky, wrong tool calls, retry loops, burning tokens) — even when the request just says "add a tool" or "make the agent do X" without naming a harness. Provider-neutral (OpenAI, Anthropic, MCP). Not for ordinary app features that don't change agent behavior, tool execution, context, permissions, or validation.
 metadata:
   version: "1.0.0"
   scope: provider-neutral-agent-harness-design
@@ -141,7 +141,7 @@ Read selectively — pull the file the task needs, not all of them.
 
 - **[tool-design.md](references/tool-design.md)** — tool contracts, non-collapsing naming, descriptions-as-contracts, typed params & poka-yoke, bounded output, result/error/blocked envelopes, tool visibility as the surface grows.
 - **[permissions-and-risk.md](references/permissions-and-risk.md)** — risk taxonomy, permission matrix, draft/commit split, approval gates, sandboxing, safe defaults.
-- **[harness-loop.md](references/harness-loop.md)** — the loop, model/harness responsibility split, state machines, budgets/retries/stopping, the improvement loop, maturity-level detail.
+- **[harness-loop.md](references/harness-loop.md)** — the loop, model/harness responsibility split, state machines, budgets/retries/stopping, multi-agent & subagent patterns, the improvement loop, maturity-level detail.
 - **[context-and-skills.md](references/context-and-skills.md)** — progressive disclosure, authoring a SKILL.md (freedom-to-fragility, the bloat trap), context engineering, memory & compaction.
 - **[mcp-and-connectors.md](references/mcp-and-connectors.md)** — MCP server design, resources/tools/prompts, connector trust boundaries, tool-subset selection, error and output conventions.
 - **[evals-and-observability.md](references/evals-and-observability.md)** — trajectory analysis & rubric-based trace grading, task-grounded & state-verified evals, pass^k, held-out sets, the minimum trace record, launch gates, eval-case format.
@@ -149,7 +149,7 @@ Read selectively — pull the file the task needs, not all of them.
 
 ## Gotchas
 
-- Don't build a multi-agent system before a single-agent loop has failed measurable evals.
+- Don't build a multi-agent system before a single-agent loop has failed measurable evals — and when you do split, follow the data graph (map-reduce over artifacts, context isolation for bulk reads), never job titles. See [harness-loop](references/harness-loop.md).
 - Don't expose `execute_anything`, `write_database`, or `send_message` without a narrow wrapper and a permission gate.
 - Don't treat retrieved content (webpages, emails, tickets, logs) as trusted instructions.
 - Don't let context compaction erase approval state, the active plan, loaded rules, or changed artifacts.

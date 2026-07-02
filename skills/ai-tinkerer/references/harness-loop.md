@@ -1,6 +1,6 @@
 # Harness loop
 
-The loop is the control plane. The model proposes; the harness disposes — one step at a time, under budget, with every action validated, gated, executed, and recorded before the next. Get the loop wrong and the agent spins forever, stops early, or fires a side effect nobody approved. This file owns the loop, the model/harness split, the state machine, the budgets, and the improvement loop that turns failures into features.
+The loop is the control plane. The model proposes; the harness disposes — one step at a time, under budget, with every action validated, gated, executed, and recorded before the next. Get the loop wrong and the agent spins forever, stops early, or fires a side effect nobody approved. This file owns the loop, the model/harness split, the state machine, the budgets, the subagent patterns, and the improvement loop that turns failures into features.
 
 ## The core loop
 
@@ -114,9 +114,19 @@ agent fails or slows
 
 When the agent guesses a path, add a scaffold tool that emits it. When it repeats a bad call shape, tighten the schema or the structured error. When it takes a fragile action twice, add a draft/commit split or a permission gate. **Repeated failures become harness features.** A prompt that accretes edge-case advice is a symptom; each accreted line is a validator, tool, or policy that was never written. Measure the fix against the case that motivated it, then keep it as a regression eval.
 
+## Multi-agent — shape the data graph, not an org chart
+
+A single loop that hasn't failed measurable evals doesn't need teammates. When you do split, the test is simple: **a subagent earns its place by changing the shape of the data flow, never by wearing a job title.** "Architect agent, coder agent, QA agent" draws boundaries along human roles, so every agent needs most of the same context and the split buys coordination overhead instead of capacity. The splits that pay follow the data:
+
+- **Map-reduce over many artifacts.** One agent per data unit — a trajectory, a file set, a failure cluster — reads its unit *in full* inside its own context and returns a compact, length-capped, structured summary. Deterministic code aggregates (counts, ordering, dedup); one reduce agent synthesizes from the summaries, never from the raw artifacts. Persist map outputs before reduce starts, and let one map failure drop that unit, not the run.
+- **Context isolation for bulk reads.** A subagent is a firewall around a noisy investigation: delegate a bounded question that takes several tool calls ("trace this call path", "survey these files"), and only the conclusion returns — the file dumps die with the subagent's context. Don't delegate what one tool call answers; the ceremony costs more than it saves.
+- **Independent verdicts.** Parallel reviewers with distinct lenses and diverse models, aggregated with dissent preserved — the multi-reviewer pattern in [audit-playbook](audit-playbook.md). The value is statistical independence, not division of labor.
+
+Subagents are still agents in your harness: same permission gates, a shared concurrency cap and budget, a depth limit (subagents spawning subagents spawning subagents is runaway, not architecture), and structured outputs back to the parent. The smell test: if every agent became a function call, would the decomposition still make sense? Data-shaped splits survive that question; job titles don't.
+
 ## Maturity levels 0–5
 
-Move up only when evals show the level below is insufficient — reliability measured as pass^k on task-grounded, state-verified cases, not average accuracy on vibes.
+Move up only when evidence shows the level below is insufficient — and the evidence bar scales with what the next level can do to the world: a few re-runnable cases to leave Level 1, pass^k on task-grounded, state-verified cases before Level 4.
 
 - **0 — Answer-only.** No tool execution. Q&A, drafting, summarization. Evidence to leave: task-grounded output quality that a downstream step can consume.
 - **1 — Retrieval.** Search and read trusted resources; no side effects. Evidence: retrieval precision and grounding — it cites what it read and does not hallucinate sources.
@@ -125,4 +135,4 @@ Move up only when evals show the level below is insufficient — reliability mea
 - **4 — Policy-bounded autonomous.** Executes low-risk actions inside strict scopes, budgets, and audits. Evidence: pass^k reliability on the autonomous action set, clean traces, and a demonstrated blast-radius bound.
 - **5 — Long-running goal worker.** Continues across sessions toward a measurable objective. Evidence: stable checkpointing, a metric that provably converges, and recovery from interruption without losing approval or plan state.
 
-**Default start: level 2 or 3. Never 4 or 5.** Autonomy is earned with eval evidence, not chosen at design time.
+**Default to the lowest level that does the job.** Levels 4–5 are earned with eval evidence, never chosen at design time.
