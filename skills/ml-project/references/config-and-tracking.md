@@ -84,11 +84,10 @@ Write findings to `memos/` as markdown:
 ```python
 import logging
 
+import coloredlogs
 
-logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s %(levelname)s %(name)s: %(message)s",
-)
+
+coloredlogs.install(level="INFO")
 logger = logging.getLogger(__name__)
 
 logger.info("Loaded %s rows", df.height)

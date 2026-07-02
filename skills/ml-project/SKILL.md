@@ -44,7 +44,7 @@ Proportionality: throwaway exploration (quick plots, sanity checks) needs no run
 | Tabular ML | CatBoost |
 | Deep Learning | PyTorch |
 | DataFrames | Polars, never pandas |
-| Logging | stdlib `logging` + `logging.getLogger(__name__)`, never print |
+| Logging | coloredlogs + `logging.getLogger(__name__)`, never print |
 | CLI | fire, e.g. `fire.Fire({"train": train, "evaluate": evaluate})` |
 | Config | dataclass + YAML |
 | Plots | matplotlib, raw |
