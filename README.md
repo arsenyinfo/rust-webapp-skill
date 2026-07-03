@@ -2,7 +2,7 @@
 
 Just another collection of skills for coding agents.
 
-- `tokenmaxxer`: one serious-work skill with three modes selected by the first argument word — `build` (features, refactors, root-caused fixes, with a fast path for trivial changes that keeps the review gate), `refactor` (refactor an accreted component into one coherent design), and `sweep` (unattended overnight cleanup of a named area — fan out explorers, fix tiny bugs and dirty code, verify with an independent model, ship themed commits as subsystem draft PRs).
+- `tokenmaxxer`: one serious-work skill with three modes selected by the first argument word — `build` (features, cross-cutting changes, root-caused fixes, with a fast path for trivial changes that keeps the review gate), `refactor` (refactor an accreted component into one coherent design), and `sweep` (unattended overnight cleanup of a named area — fan out explorers, fix tiny bugs and dirty code, verify with an independent model, ship themed commits as subsystem draft PRs).
 - `dialectic`: prove and counter-prove claims with parallel agents before concluding. 
 - `investigate`: evidence-first debugging and root cause investigation. 
 - `rust-webapp`: build full-stack Rust web apps with Axum, SQLx, HTMX + Alpine.js (or DataStar for SSE-heavy UIs), and Neon. No React, no TypeScript, no Webpack, no Vite, no Babel, no yarn, no pnpm.

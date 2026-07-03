@@ -1,6 +1,6 @@
 # build mode
 
-You are in **build** mode: a multi-file feature, cross-cutting refactor, new subsystem, or a root-caused bug fix. The router's Review Cycle, Intent contract, and Escalation rules apply; this file specializes the design and implementation loop.
+You are in **build** mode: a multi-file feature, a cross-cutting change (a codebase-wide rename or pattern migration counts, even when it is refactor-shaped — `refactor` mode is for one accreted component), a new subsystem, or a root-caused bug fix. The router's Review Cycle, Intent contract, and Escalation rules apply; this file specializes the design and implementation loop.
 
 ## Design Workflow
 
@@ -23,15 +23,16 @@ Plan structure:
 
 ## Implementation Workflow
 
-1) Checkout a new branch from fresh main, unless already on a non-main branch.
+1) Checkout a new branch from the fresh default branch. If already on a non-default branch, use it only when its existing commits belong to this task; otherwise branch off it. Record the diff base — the default-branch merge-base, or the pre-existing tip when you branched off unrelated work — every `REVIEW(diff)` targets the diff against this base, never someone else's commits.
 2) If the task decomposes into components with disjoint file sets (e.g. backend, frontend, CI), implement them concurrently: launch one subagent per lane in a single message, each scoped to only its files and told not to commit, format, run codegen, or install dependencies. You own shared state: after the lanes return, serialize a single branch/commit, codegen, lockfile/dependency changes, formatting, type-check, and tests. Where a generated artifact couples lanes (API clients, ORM schemas, language bindings), agree the contract up front in each prompt or serialize codegen between dependent lanes. Only split lanes that are genuinely independent; otherwise stay serial.
 3) If the task has isolated components, run `REVIEW(component)` once it compiles and passes its own tests.
 4) Run tests, linters, and other required validation.
 5) After the task is done, reviewed, validation passes, and findings are addressed, make a commit but do not push.
-6) External gate: run `REVIEW(diff)` in the background, where `diff` is the full branch diff against main. Review adversarially: try to find the strongest reason the change should not ship yet, not reasons it is probably fine. This gate is mandatory for every change, trivial ones included.
-7) Internal gate: run `REVIEW(diff, your own subagent with clear context)`. Wait for the external gate to finish and merge its findings with this one before proceeding. Commit fixes from either gate as follow-up commits on the same branch. (Droppable only on the trivial fast path.)
-8) Push the changes and open a draft PR if one does not already exist.
-9) Write a summary for the user.
+6) External gate: run `REVIEW(diff)` in the background, where `diff` is the branch diff against the recorded diff base (step 1) — this task's commits only. Review adversarially: try to find the strongest reason the change should not ship yet, not reasons it is probably fine. This gate is mandatory for every change, trivial ones included.
+7) Internal gate: run `REVIEW(diff, your own subagent with clear context)`. (Droppable only on the trivial fast path.)
+8) Wait for the external gate — and the internal one when it ran — to finish; merge their findings and address them as follow-up commits on the same branch. Never push while a gate is still running or has unaddressed findings. This step is never skipped, fast path included.
+9) Push the changes and open a draft PR if one does not already exist.
+10) Write a summary for the user.
 
 ## Guardrails
 
