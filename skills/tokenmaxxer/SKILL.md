@@ -1,6 +1,6 @@
 ---
 name: tokenmaxxer
-description: Serious engineering work with a reviewed plan and adversarial review gates. Pick a mode with the first word of the argument. `build` — a multi-file feature, a root-caused bug fix, or a broad cross-cutting change; skips planning for trivial one-file changes but always keeps the diff-review gate. `refactor` — consolidate a component that grew by accretion into one coherent design, behavior-preserving, attended. `sweep` — an unattended overnight housekeeping run over a named area that ships tiny verified fixes as subsystem draft PRs. `followup` — work through out-of-scope findings recorded by earlier runs with the user's decisions, review-first; needs no argument. Invoke explicitly, e.g. `/tokenmaxxer refactor <component>`.
+description: Serious engineering work with a reviewed plan and adversarial review gates. Pick a mode with the first word of the argument. `build` — a multi-file feature, a root-caused bug fix, or a broad cross-cutting change; skips planning for trivial one-file changes but always keeps the diff-review gate. `refactor` — consolidate a component that grew by accretion into one coherent design, behavior-preserving, attended. `sweep` — an unattended overnight housekeeping run over a named area that ships tiny verified fixes as subsystem draft PRs. `followup` — work through out-of-scope findings recorded by earlier runs with the user's decisions, review-first; no required argument. Invoke explicitly, e.g. `/tokenmaxxer refactor <component>`.
 argument-hint: "build <task>  |  refactor <component>  |  sweep <area>  |  followup"
 compatibility: "requires an external review tool (e.g. codex:codex-rescue or opencode) and the investigate skill; all modes use the design-taste reference, refactor/sweep add deletion-evidence; sweep additionally needs the gh CLI and a git repo with a remote"
 ---
@@ -16,7 +16,7 @@ The first word of `$ARGUMENTS` names the mode and is **required — there is no 
 - **`build <task>`** → `references/build.md`. A feature, a root-caused bug fix, or a broad cross-cutting change — a codebase-wide refactor-shaped change (a rename, a pattern migration) included.
 - **`refactor <component>`** → `references/refactor.md`. Consolidate a component that grew by accretion into one coherent design; behavior-preserving. One component — codebase-wide is `build`.
 - **`sweep <area>`** → `references/sweep.md`. Unattended overnight cleanup of a named area, shipping tiny verified fixes as draft PRs.
-- **`followup`** → `references/followup.md`. Work through the follow-up ledger (below) with the user's decisions, review-first. Takes no argument; an optional one filters by area or names a specific ledger/report file.
+- **`followup`** → `references/followup.md`. Work through the follow-up ledger (below) with the user's decisions, review-first. No required argument; an optional one filters by area or names a specific ledger/report file.
 
 If the first word is not exactly one of `build`, `refactor`, `sweep`, or `followup`, do not guess the mode — tell the user it is required and ask which one. Requiring the keyword is a safety property, not a formality: `sweep` opens PRs while the user is asleep, so it must never be reached by inference.
 
@@ -33,7 +33,7 @@ Define `REVIEW(target, reviewer = codex:codex-rescue)` as:
    - cosmetic — taste with no behavioral or maintenance consequence: skip and note.
 3) repeat from step 1 until a round yields no new actionable findings, or after 3 rounds total. If findings are still unresolved after 3 rounds, surface them to the user (or, in sweep, to the morning report) and stop retrying.
 
-If the default `reviewer` is not available, never degrade to self-review only: in attended modes (build, refactor) abort and ask the user to fix; in sweep abort the run and write the failure to the morning report (Preflight). Substitute another review tool when the user prefers one (e.g. opencode in non-interactive mode or https://github.com/arsenyinfo/nitpicker); in sweep the substitute must be named at launch — never swapped mid-run — and inherits every duty sweep.md assigns to `codex:codex-rescue`: the preflight ping, both gates, and positive confirmation.
+If the default `reviewer` is not available, never degrade to self-review only: in attended modes (build, refactor, followup) abort and ask the user to fix; in sweep abort the run and write the failure to the morning report (Preflight). Substitute another review tool when the user prefers one (e.g. opencode in non-interactive mode or https://github.com/arsenyinfo/nitpicker); in sweep the substitute must be named at launch — never swapped mid-run — and inherits every duty sweep.md assigns to `codex:codex-rescue`: the preflight ping, both gates, and positive confirmation.
 
 Every `REVIEW` prompt must ask for concrete findings with file/line evidence across these lenses:
 - correctness, security, performance, data loss, races, partial failure, and logic consistency;
@@ -60,7 +60,7 @@ When implementation proves the approved scope, externally observable behavior, a
 
 ## Follow-up ledger (all modes)
 
-A real, verified defect discovered outside the current run's approved scope or blast radius is recorded, never fixed inline (that would be a scope change — Escalation above) and never lost. The ledger lives at a stable per-repo path: `/tmp/tokenmaxxer-followups-<repo-basename>.md`. The path is convention, not memory — after compaction or in a fresh session, `followup` mode re-derives it from the repo alone. Each entry carries:
+A real, verified defect discovered outside the current run's approved scope or blast radius is recorded, never fixed inline (that would be a scope change — Escalation above) and never silently dropped. The ledger lives at a stable per-repo path: `/tmp/tokenmaxxer-followups-<repo-basename>.md` — ephemeral like everything in `/tmp`, an accepted trade; sweep reports and run summaries name the same findings as backup. The path is convention, not memory — after compaction or in a fresh session, `followup` mode re-derives it from the repo alone. Each entry carries:
 
 - one `sweep-key: <normalized-path>:<line-range>:<mechanism-slug>` line — this is the canonical definition of the dedup key format; one name across ledger, reports, and PR bodies so greps match everywhere;
 - `file:line` evidence and a one-line defect statement;
