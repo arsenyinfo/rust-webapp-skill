@@ -2,7 +2,7 @@
 name: tokenmaxxer
 description: Serious engineering work with a reviewed plan and adversarial review gates. Pick a mode with the first word of the argument. `build` — a multi-file feature, a root-caused bug fix, or a broad cross-cutting change; skips planning for trivial one-file changes but always keeps the diff-review gate. `refactor` — consolidate a component that grew by accretion into one coherent design, behavior-preserving, attended. `sweep` — an unattended overnight housekeeping run over a named area that ships tiny verified fixes as subsystem draft PRs. `followup` — work through out-of-scope findings recorded by earlier runs with the user's decisions, review-first; no required argument. Invoke explicitly, e.g. `/tokenmaxxer refactor <component>`.
 argument-hint: "build <task>  |  refactor <component>  |  sweep <area>  |  followup"
-compatibility: "requires an external review tool (e.g. codex:codex-rescue or opencode) and the investigate skill; all modes use the design-taste reference, refactor/sweep add deletion-evidence; sweep additionally needs the gh CLI and a git repo with a remote"
+compatibility: "requires an external review tool (e.g. codex:codex-rescue or opencode); the investigate skill is recommended for deep triage (a self-contained core ships in the triage reference); all modes use the design-taste and triage references, refactor/sweep add deletion-evidence; sweep additionally needs the gh CLI and a git repo with a remote"
 ---
 
 Serious work mode. Task: $ARGUMENTS

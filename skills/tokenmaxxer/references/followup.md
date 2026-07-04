@@ -7,7 +7,7 @@ This mode runs the **build** workflow (`references/build.md`) for every approved
 ## Intake
 
 1. Read the ledger at the router's path convention. Then always cross-check surviving sweep reports (`/tmp/sweep-report-*`) — even when the ledger has open entries, since a mirror step can fail for one entry while others landed — and import any *needs-your-call* or finishable *Incomplete* entry whose `sweep-key` the ledger lacks. If neither source yields `open`/`deferred` entries, report there is nothing to follow up and stop.
-2. **Re-verify before asking.** Ledger evidence goes stale: PRs merge, code moves. Check each entry against the current default branch — confirm the defect still exists at (or near) the recorded location. An entry that no longer reproduces is marked `dropped (resolved elsewhere)` with one line of evidence; never bring a dead item to the user.
+2. **Re-verify before asking.** Ledger evidence goes stale: PRs merge, code moves. Check each entry against the current default branch — confirm the defect still exists at (or near) the recorded location, holding the evidence to the standards in `references/triage.md` (evidence priority; no invented ground truth). An entry that no longer reproduces is marked `dropped (resolved elsewhere)` with one line of evidence; never bring a dead item to the user.
 3. **Decisions first, execution second.** Present the surviving items grouped by subsystem, each as its recorded decision question plus recommendation; the user answers fix / skip / defer per item. Collect the whole batch before implementing anything, so a long session never splits a decision from its context.
 
 ## Execution
