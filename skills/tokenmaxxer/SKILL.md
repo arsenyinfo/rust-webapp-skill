@@ -1,7 +1,7 @@
 ---
 name: tokenmaxxer
-description: Serious engineering work with a reviewed plan and adversarial review gates. Pick a mode with the first word of the argument. `build` — a multi-file feature, a root-caused bug fix, or a broad cross-cutting change; skips planning for trivial one-file changes but always keeps the diff-review gate. `refactor` — consolidate a component that grew by accretion into one coherent design, behavior-preserving, attended. `sweep` — an unattended overnight housekeeping run over a named area that ships tiny verified fixes as subsystem draft PRs. Invoke explicitly, e.g. `/tokenmaxxer refactor <component>`.
-argument-hint: "build <task>  |  refactor <component>  |  sweep <area>"
+description: Serious engineering work with a reviewed plan and adversarial review gates. Pick a mode with the first word of the argument. `build` — a multi-file feature, a root-caused bug fix, or a broad cross-cutting change; skips planning for trivial one-file changes but always keeps the diff-review gate. `refactor` — consolidate a component that grew by accretion into one coherent design, behavior-preserving, attended. `sweep` — an unattended overnight housekeeping run over a named area that ships tiny verified fixes as subsystem draft PRs. `followup` — work through out-of-scope findings recorded by earlier runs with the user's decisions, review-first; needs no argument. Invoke explicitly, e.g. `/tokenmaxxer refactor <component>`.
+argument-hint: "build <task>  |  refactor <component>  |  sweep <area>  |  followup"
 compatibility: "requires an external review tool (e.g. codex:codex-rescue or opencode) and the investigate skill; all modes use the design-taste reference, refactor/sweep add deletion-evidence; sweep additionally needs the gh CLI and a git repo with a remote"
 ---
 
@@ -16,10 +16,11 @@ The first word of `$ARGUMENTS` names the mode and is **required — there is no 
 - **`build <task>`** → `references/build.md`. A feature, a root-caused bug fix, or a broad cross-cutting change — a codebase-wide refactor-shaped change (a rename, a pattern migration) included.
 - **`refactor <component>`** → `references/refactor.md`. Consolidate a component that grew by accretion into one coherent design; behavior-preserving. One component — codebase-wide is `build`.
 - **`sweep <area>`** → `references/sweep.md`. Unattended overnight cleanup of a named area, shipping tiny verified fixes as draft PRs.
+- **`followup`** → `references/followup.md`. Work through the follow-up ledger (below) with the user's decisions, review-first. Takes no argument; an optional one filters by area or names a specific ledger/report file.
 
-If the first word is not exactly one of `build`, `refactor`, or `sweep`, do not guess the mode — tell the user it is required and ask which one. Requiring the keyword is a safety property, not a formality: `sweep` opens PRs while the user is asleep, so it must never be reached by inference.
+If the first word is not exactly one of `build`, `refactor`, `sweep`, or `followup`, do not guess the mode — tell the user it is required and ask which one. Requiring the keyword is a safety property, not a formality: `sweep` opens PRs while the user is asleep, so it must never be reached by inference.
 
-**Do not blend attended and unattended policy.** build and refactor are attended — they pause and ask the user; sweep is unattended — once launched it never asks (its one question, refusing to start without a named area, happens at launch) and records to the morning report instead. Never operate under both policies at once; that blend is the failure this skill guards against. refactor is the one composition: it *runs on top of* build — read both `build.md` (the dev loop) and `refactor.md` (the overrides), which is safe because both are attended. sweep stands alone; never load it beside build or refactor. The shared references (`design-taste.md`, `deletion-evidence.md`) carry mechanisms and evidence standards only, never supervision policy; the mode file owns policy. Read your mode's file(s) now and follow them; they point you to the shared references as needed.
+**Do not blend attended and unattended policy.** build, refactor, and followup are attended — they pause and ask the user; sweep is unattended — once launched it never asks (its one question, refusing to start without a named area, happens at launch) and records to the morning report instead. Never operate under both policies at once; that blend is the failure this skill guards against. refactor and followup are the compositions: each *runs on top of* build — read `build.md` (the dev loop) plus your mode's own file (the overrides) — safe because all three are attended. sweep stands alone; never load it beside the attended modes. The shared references (`design-taste.md`, `deletion-evidence.md`) carry mechanisms and evidence standards only, never supervision policy; the mode file owns policy. Read your mode's file(s) now and follow them; they point you to the shared references as needed.
 
 ## Review Cycle (all modes)
 
@@ -49,11 +50,23 @@ Before implementing, write an intent contract: **Goal, Inputs/outputs, Acceptanc
 - **build** saves it to a `/tmp` scratch file and gates it with `REVIEW(plan)`; the trivial fast path may instead state it to the user in a sentence or two.
 - **refactor** extends it with a current-state map, target design, and deletion ledger (see `references/refactor.md`).
 - **sweep** writes one per cluster and gates it with Codex (see `references/sweep.md`).
+- **followup** seeds it from the ledger entry's evidence and the user's recorded decision (see `references/followup.md`).
 
 ## Escalation (all modes)
 
 When implementation proves the approved scope, externally observable behavior, an API/data contract, or the acceptance criteria must change, do not smuggle the change into a local fix. The target of the escalation is the one thing that differs by supervision:
-- **build, refactor (attended):** pause and ask the user.
+- **build, refactor, followup (attended):** pause and ask the user.
 - **sweep (unattended):** the user is asleep — record it under the morning report's *needs-your-call* section with evidence and no code.
+
+## Follow-up ledger (all modes)
+
+A real, verified defect discovered outside the current run's approved scope or blast radius is recorded, never fixed inline (that would be a scope change — Escalation above) and never lost. The ledger lives at a stable per-repo path: `/tmp/tokenmaxxer-followups-<repo-basename>.md`. The path is convention, not memory — after compaction or in a fresh session, `followup` mode re-derives it from the repo alone. Each entry carries:
+
+- one `sweep-key: <normalized-path>:<line-range>:<mechanism-slug>` line — this is the canonical definition of the dedup key format; one name across ledger, reports, and PR bodies so greps match everywhere;
+- `file:line` evidence and a one-line defect statement;
+- the concrete decision question the user must answer, with a recommended answer — decidable without re-reading the codebase;
+- origin (mode, date) and status: `open`, `deferred`, `done (PR)`, or `dropped (reason)`.
+
+Append entries as findings surface, and name the ledger in your final summary whenever you added to it.
 
 Hold your own work to the `REVIEW` lenses above; do not wait for review to catch them. Put temporary files in `/tmp`.
