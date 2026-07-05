@@ -51,7 +51,7 @@ Before implementing, write an intent contract: **Goal, Inputs/outputs, Acceptanc
 - **build** saves it to a `/tmp` scratch file and gates it with `REVIEW(plan)`; the trivial fast path may instead state it to the user in a sentence or two.
 - **refactor** extends it with a current-state map, target design, and deletion ledger (see `references/refactor.md`).
 - **sweep** writes one per cluster and gates it with Codex (see `references/sweep.md`).
-- **experiment** writes one per hypothesis-tree leaf — mechanism, expected effect vs the noise floor, pre-registered keep/revert rule, cost envelope (see `references/experiment.md`).
+- **experiment** writes one per hypothesis-tree leaf — mechanism, single knob turned, expected effect vs the noise floor, pre-registered keep/revert rule, cost envelope (see `references/experiment.md`).
 - **followup** seeds it from the ledger entry's evidence and the user's recorded decision (see `references/followup.md`).
 
 ## Escalation (all modes)

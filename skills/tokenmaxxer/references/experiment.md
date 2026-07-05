@@ -31,7 +31,12 @@ Run `REVIEW(tree)` with an extended duty beyond the router's lenses: the reviewe
 
 ## Phase 4 — User approval (attended)
 
-Present the ranked tree with per-leaf recommendations, the frozen protocol, the noise floor, and the proposed **batch budget** (max experiments and wall-clock). The user reorders, prunes, edits rules, and approves. Reordering and pruning need no re-review; an added leaf, a changed decision rule, or a protocol change returns to phase 3 for one more gate round before the batch may start — otherwise the batch would run material the plan gate never saw. The approval is the consent boundary — no batch without it, and the batch never exceeds what it authorizes.
+Present the ranked tree as a table with one fixed column set — every batch, every repo, so approval stays a scan and not a re-orientation:
+
+| rank | leaf | mechanism (one line) | single knob | expected effect vs noise floor | keep/revert rule | cost envelope | reviewer's note |
+|---|---|---|---|---|---|---|---|
+
+Alongside it: the frozen protocol, the noise floor, and the proposed **batch budget** (max experiments and wall-clock). The user reorders, prunes, edits rules, and approves. Reordering and pruning need no re-review; an added leaf, a changed decision rule, or a protocol change returns to phase 3 for one more gate round before the batch may start — otherwise the batch would run material the plan gate never saw. The approval is the consent boundary — no batch without it, and the batch never exceeds what it authorizes.
 
 ## Phase 5 — Batch execution (autonomous)
 
@@ -41,7 +46,7 @@ Work the ranked tree top-down. Per leaf:
 2. **Diff gate** before spending compute: a full `REVIEW(diff)` under all the router's lenses, plus one experiment lens always asked — the confound check: does this diff change exactly what the leaf's contract names and nothing else? A rider change (an extra hyperparameter drift, a "while I'm here" cleanup) poisons the causal claim; strip it or ledger it as its own idea. This is the only full-lens review the leaf's code gets before it can be committed — never narrow it.
 3. Run the frozen validation command, repeated when the pre-registered rule needs variance evidence.
 4. **Result gate**: `REVIEW(result)` — the reviewer sees the diff, the metric and secondary deltas, and the variance evidence, and tries to refute the causal claim: eval integrity (leakage, harness gaming, test-set peeking), delta vs the noise floor, cost envelope vs the Pareto axes, lucky-seed risk, and whether the observed effect is plausibly produced by the named mechanism.
-5. An actionable finding from either gate blocks the commit regardless of the metric: fix and re-run that gate within the router's 3-round cap, else revert the leaf and carry the unresolved findings into the report. Only then apply the leaf's pre-registered rule: **keep** → commit on the run branch; **revert** → discard the diff. Either way, append the ledger entry to the run file: hypothesis, decision, deltas, and the *reason* — "refuted: below noise floor" teaches the next batch; a bare number does not.
+5. Triage gate findings per the router's rubric, with one experiment-specific scoping: a leaf diff is by definition code you are touching, so the minor tier's "if already touching" condition always holds — read it as *fix inline without spending a review round*, and cosmetic as note-and-proceed; otherwise every naming nit would be commit-blocking and could burn the round cap. A blocker or major from either gate blocks the commit regardless of the metric: fix and re-run that gate within the router's 3-round cap, else revert the leaf and carry the unresolved findings into the report. Only then apply the leaf's pre-registered rule: **keep** → commit on the run branch; **revert** → discard the diff. Either way, append the ledger entry to the run file: hypothesis, decision, deltas, and the *reason* — "refuted: below noise floor" teaches the next batch; a bare number does not.
 
 Comparison discipline: leaves run sequentially on the run branch, so each leaf's measured delta is *marginal* — taken against the branch tip, earlier kept commits included — and the pre-registered rule applies to that marginal delta. Record both it and the cumulative delta against the phase-1 baseline in the ledger. A leaf whose contract requires isolation from earlier keeps runs from the run base in a separate worktree instead, noted in the ledger.
 
@@ -53,7 +58,10 @@ Boundaries, restated once: protocol changes park as next-batch proposals (never 
 
 Deliver, in the run file and summarized to the user:
 
-1. A results table: every leaf — kept / refuted / skipped — with deltas against baseline and the one-line reason.
+1. A results table covering every leaf, with one fixed column set so batches stay comparable and greppable across runs:
+
+   | leaf | decision (kept / refuted / skipped) | marginal Δ | cumulative Δ | secondary-axis cost | reason (one line) |
+   |---|---|---|---|---|---|
 2. What the batch *taught*: mechanism-level conclusions ("attention-side changes are all below noise at this scale"), not just numbers.
 3. Every best guess taken, with its rerun offer, and every parked protocol-change proposal.
 4. Every follow-up ledger entry added during the batch — `sweep-key`, evidence, decision question — and the ledger path, per the router's ledger rule.
