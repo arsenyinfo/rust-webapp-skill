@@ -15,19 +15,21 @@ use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt};
 use db::DbPool;
 
 // error handling - allows handlers to return Result<T, AppError>
-#[derive(Debug)]
-struct AppError(String);
+pub struct AppError(anyhow::Error);
 
 impl IntoResponse for AppError {
     fn into_response(self) -> Response {
-        tracing::error!("handler error: {}", self.0);
-        (StatusCode::INTERNAL_SERVER_ERROR, self.0).into_response()
+        tracing::error!("Application error: {}", self.0);
+        (StatusCode::INTERNAL_SERVER_ERROR, "Something went wrong").into_response()
     }
 }
 
-impl<E: std::error::Error> From<E> for AppError {
+impl<E> From<E> for AppError
+where
+    E: Into<anyhow::Error>,
+{
     fn from(err: E) -> Self {
-        AppError(err.to_string())
+        Self(err.into())
     }
 }
 
@@ -146,7 +148,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         // uncomment as you add handlers:
         // .route("/", post(create))
         // .route("/{id}/edit", get(edit_form))
-        // .route("/{id}", put(update).delete(delete))
+        // .route("/{id}", post(update).delete(delete))
         .nest_service("/static", ServeDir::new("static"))
         .layer(TraceLayer::new_for_http())
         .with_state(state);

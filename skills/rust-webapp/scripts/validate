@@ -1,10 +1,12 @@
 #!/bin/bash
 set -euo pipefail
 
-APP_DIR="$1"
+APP_DIR="${1:-}"
+RESET_DB="${2:-}"
 
 if [ -z "$APP_DIR" ]; then
-    echo "Usage: validate <app_directory>"
+    echo "Usage: validate <app_directory> [--reset]"
+    echo "  --reset  drop and recreate the database (dev only, DESTROYS all data)"
     exit 1
 fi
 
@@ -35,11 +37,17 @@ elif ! command -v sqlx &> /dev/null; then
     echo "ERROR: sqlx-cli required for migrations"
     echo "Install: cargo install sqlx-cli --features postgres,native-tls"
     exit 1
+elif [ "$RESET_DB" = "--reset" ]; then
+    echo "Resetting database (--reset)..."
+    sqlx database reset -y --source ./migrations
+    echo "PASS"
 else
-    # try normal migrate, fall back to reset if migration was modified
-    if ! sqlx migrate run --source ./migrations 2>&1; then
-        echo "Migration failed, resetting database..."
-        sqlx database reset -y --source ./migrations
+    if ! sqlx migrate run --source ./migrations; then
+        echo "ERROR: migration failed"
+        echo "If this is a checksum mismatch, a previously applied migration was edited."
+        echo "Fix: revert the edit and add a NEW migration file instead."
+        echo "Last resort (dev only, DESTROYS all data): validate $APP_DIR --reset"
+        exit 1
     fi
     echo "PASS"
 fi

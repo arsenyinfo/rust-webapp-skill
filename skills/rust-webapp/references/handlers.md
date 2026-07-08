@@ -119,47 +119,8 @@ let app = Router::new()
 
 ## Transactions
 
-Use when multiple queries must succeed together:
-
-```rust
-async fn vote(
-    State(state): State<AppState>,
-    Form(input): Form<VoteInput>,
-) -> Result<impl IntoResponse, AppError> {
-    let mut tx = state.pool.begin().await?;
-
-    // insert vote
-    sqlx::query!("INSERT INTO votes (user_id, option_id) VALUES ($1, $2)",
-        input.user_id, input.option_id)
-        .execute(&mut *tx)
-        .await?;
-
-    // increment count
-    sqlx::query!("UPDATE options SET count = count + 1 WHERE id = $1", input.option_id)
-        .execute(&mut *tx)
-        .await?;
-
-    tx.commit().await?;  // atomic commit
-    Ok(Redirect::to("/"))
-}
-```
+When multiple queries must succeed together, wrap them in a transaction - see [Pitfalls: Transactions for Atomic Operations](./pitfalls.md#transactions-for-atomic-operations).
 
 ## Error Inspection
 
-Don't use `is_err()` blindly - inspect actual error type:
-
-```rust
-// BAD - returns "already voted" for ANY error
-if result.is_err() {
-    return Err(AppError::internal("Already voted"));
-}
-
-// GOOD - inspect actual error type
-match result {
-    Ok(_) => Ok(Html("Vote recorded!")),
-    Err(sqlx::Error::Database(e)) if e.is_unique_violation() => {
-        Err(anyhow::anyhow!("Already voted").into())
-    }
-    Err(e) => Err(e.into()),  // propagate real errors
-}
-```
+Don't use `is_err()` blindly - inspect the actual error type. See [Pitfalls: Don't Use is_err() Blindly](./pitfalls.md#dont-use-is_err-blindly).

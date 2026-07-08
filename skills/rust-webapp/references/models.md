@@ -82,15 +82,7 @@ CREATE TABLE IF NOT EXISTS comments (
 
 ## PostgreSQL Type Mapping
 
-| PostgreSQL | Rust | Use Case |
-|------------|------|----------|
-| `SERIAL` | `i32` | Most tables (up to 2B rows) |
-| `BIGSERIAL` | `i64` | Only if you need billions of rows |
-| `TEXT` | `String` | Variable-length strings |
-| `BOOLEAN` | `bool` | True/false |
-| `TIMESTAMP` | `chrono::NaiveDateTime` | Date/time (add `chrono` feature to sqlx) |
-
-Using wrong type compiles but causes runtime confusion.
+See [Pitfalls: PostgreSQL Type Mapping](./pitfalls.md#postgresql-type-mapping) for the full type table (`SERIAL` → `i32`, etc.).
 
 ## Join Queries
 

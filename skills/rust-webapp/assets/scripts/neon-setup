@@ -5,7 +5,8 @@
 #   ./scripts/neon-setup cleanup  # Delete branch, remove .env
 #
 # Requires: NEON_API_KEY, NEON_PROJECT_ID env vars
-# Optional: NEON_ROLE_NAME (defaults to neondb_owner)
+# Optional: APP_NAME (defaults to the name recorded in .env by a prior setup, then the app directory name)
+#           NEON_ROLE_NAME (defaults to neondb_owner)
 #           NEON_COMPUTE_SIZE (defaults to 0.25-1 CU)
 #           NEON_BRANCH_TTL (branch expiration, e.g., "2h", "1d", "7d")
 #
@@ -15,7 +16,11 @@ set -e
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 APP_DIR="$(cd "$SCRIPT_DIR/.." && pwd)"
-APP_NAME="$(basename "$APP_DIR")"
+# Prefer explicit APP_NAME, then the name a prior setup recorded in .env, then the directory name
+if [ -z "${APP_NAME:-}" ] && [ -f "$APP_DIR/.env" ]; then
+    APP_NAME="$(sed -n 's/^# APP_NAME=//p' "$APP_DIR/.env")"
+fi
+APP_NAME="${APP_NAME:-$(basename "$APP_DIR")}"
 COMMAND="${1:-setup}"
 
 : "${NEON_API_KEY:?NEON_API_KEY required}"
@@ -116,7 +121,10 @@ setup() {
 
     DEV_URI=$(neonctl connection-string --project-id "$NEON_PROJECT_ID" --branch "$DEV_BRANCH" --role-name "$NEON_ROLE_NAME")
 
-    echo "export DATABASE_URL='$DEV_URI'" > "$APP_DIR/.env"
+    {
+        echo "# APP_NAME=$APP_NAME"
+        echo "export DATABASE_URL='$DEV_URI'"
+    } > "$APP_DIR/.env"
     echo ""
     echo "Written to .env:"
     cat "$APP_DIR/.env"
