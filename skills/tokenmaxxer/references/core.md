@@ -52,7 +52,7 @@ When implementation proves the approved scope, externally observable behavior, a
 
 ## Working doc
 
-One doc per run, at `/tmp/tokenmaxxer-<repo-basename>-<mode>-<slug>-<YYYYMMDD-HHMM>.md`. The timestamp is not decoration: without it a repeated `sweep <same-area>` overwrites the earlier run's undrained findings. Never reuse or overwrite an existing doc — if the name is already taken (two runs inside the same minute), append `-2`, `-3`, … until it is free. It is the run's only durable artifact: plan, progress, findings, and outcome in one place, so a compacted or resumed session re-derives its state from the repo rather than from memory. Append as the run proceeds — never save it up for the end, so a run killed midway still leaves a readable partial.
+One doc per run, at `/tmp/tokenmaxxer-<repo-basename>-<mode>-<slug>-<YYYYMMDD-HHMM>.md`. The timestamp is not decoration: without it a repeated `sweep <same-area>` overwrites the earlier run's undrained findings. Never reuse or overwrite an existing doc — if the name is already taken (two runs inside the same minute), append `-2`, `-3`, … until it is free. It is the run's only durable artifact, so a compacted or resumed session re-derives its state from it rather than from memory. Append as the run proceeds — never save it up for the end, so a run killed midway still leaves a readable partial.
 
 ```
 # <mode> run — <slug>
@@ -66,17 +66,11 @@ run base: <sha> · started: <date> · scope: <area or component>
 
 ### Follow-up blocks
 
-**`kind` and `tier` are independent axes. `kind` is *who may decide*; `tier` is *how bad it is*. Every block carries both.** Admission reads `kind` first:
-
-- **`kind: defect`** — a real, verified defect discovered outside the current run's approved scope or blast radius. Never fixed inline (that is a scope change — Escalation above). Admitted at `tier: blocker` or `major` only; a minor or cosmetic one is noted in the run summary and dies there, because it does not earn a durable decision question.
-- **`kind: consent`** — anything a mode reserves for the user's judgment rather than its own: sweep's *needs-your-call* items (observable behavior change, API/contract/persisted-format, security-sensitive, dependency change, semantic instruction-text edit, a root cause still unresolved after triage), and finishable operational leftovers (a verified branch whose push or PR-create failed). Admitted **at every tier** — the criterion is that a human must decide, not that it is severe. Never route a consent item through the defect tier gate, and never drop its tier: a blocker-grade security decision and a failed push are both consent items, and the tier is what tells them apart.
-
-When an item satisfies both — an out-of-area finding that also needs a human decision — it is `kind: consent`. Authority outranks location, because the wrong outcome is an unreachable decision, not an unrecorded defect.
+Recorded here, never fixed inline (that is a scope change — Escalation above) and never silently dropped: a verified defect outside the run's approved scope or blast radius, anything the mode reserves for the user's judgment (sweep's *needs-your-call* — `sweep.md` owns the criteria), and any finishable operational leftover. There is no admission gate — an item that earned a decision question earns a block; `tier` orders the reading, it never decides what is recorded.
 
 ```
 - sweep-key: <normalized-path>:<line-range>:<mechanism-slug>
-  kind: defect | consent
-  tier: blocker | major | minor | cosmetic     # always present; defects admit only blocker/major
+  tier: blocker | major | minor
   subsystem: <name>
   defect: <one line>, with (<file:line>) when it has a code location
   question: <the decision the user must answer, with a recommended answer>

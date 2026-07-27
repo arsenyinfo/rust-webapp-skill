@@ -38,5 +38,5 @@ Plan structure:
 
 - If implementation proves the approved scope, externally observable behavior, API/data contract, or acceptance criteria must change, escalate per `core.md`. Do not smuggle contract changes into local fixes.
 - A test whose setup patches the system under test's own internals is a `REVIEW` finding; do not downgrade it in triage. Tests exercise real code, mocking only true process boundaries — a tmp dir is real I/O.
-- A real defect discovered outside the approved scope is not fixed inline and not lost: record it as a follow-up block in the working doc (`core.md`, blocker/major only) and note it in the summary.
+- A real defect discovered outside the approved scope is not fixed inline and not lost: record it as a follow-up block in the working doc (`core.md`) and note it in the summary.
 - The project favors correctness over robustness. No hidden exceptions, no silent error handling, no magic.

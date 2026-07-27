@@ -52,7 +52,7 @@ Comparison discipline: leaves run sequentially on the run branch, so each leaf's
 
 Tree discipline: evidence may **prune and reorder within the approved tree** — a refuted direction's remaining subideas are skipped (ledgered as `skipped: direction refuted by <leaf>`), a promising sibling may be promoted — but only among approved leaves. New ideas discovered mid-batch are recorded as next-batch proposals, never run. The batch ends when the tree or the budget is exhausted.
 
-Boundaries, restated once: protocol changes park as next-batch proposals (never best-guessed); ambiguities take a disclosed best guess; code defects discovered along the way become follow-up blocks in the working doc under `core.md`'s admission rules — `kind: defect` at blocker/major only, `kind: consent` at any tier — never fixed inline. If the reviewer becomes unavailable mid-batch, stop the batch and write the report from the state so far — a metric alone is not a gate.
+Boundaries, restated once: protocol changes park as next-batch proposals (never best-guessed); ambiguities take a disclosed best guess; code defects discovered along the way become follow-up blocks in the working doc (`core.md`), never fixed inline. If the reviewer becomes unavailable mid-batch, stop the batch and write the report from the state so far — a metric alone is not a gate.
 
 ## Phase 6 — Report (attended)
 
@@ -64,5 +64,5 @@ Deliver, in the working doc's Outcome section and summarized to the user:
    |---|---|---|---|---|---|
 2. What the batch *taught*: mechanism-level conclusions ("attention-side changes are all below noise at this scale"), not just numbers.
 3. Every best guess taken, with its rerun offer, and every parked protocol-change proposal.
-4. Every follow-up block added during the batch — `sweep-key`, kind, tier, evidence, decision question — and the working doc's path, so `followup` can be pointed at it.
+4. Every follow-up block added during the batch — `sweep-key`, tier, evidence, decision question — and the working doc's path, so `followup` can be pointed at it.
 5. The **next-batch proposal**: a ranked tree seeded from surviving subideas, mid-batch discoveries, parked proposals, and rerun offers — phase 2 of the next cycle, pre-built. Approving it starts the cycle again; kept commits ride the run branch, and shipping it (draft PR or merge) is the user's call at this point.
