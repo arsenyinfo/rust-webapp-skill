@@ -23,7 +23,7 @@ A claim that a superseded path takes no traffic must cite the rollout/config sou
 
 ## Stale-workaround premise proof
 
-Removing a `TODO`/`FIXME`/`HACK`/`XXX` workaround ships only after you prove the premise no longer holds — the newer version exists and resolves the issue, the API is public in the version the project actually uses, the polyfilled feature is available on every supported target. Proof is a concrete check (changelog, release notes, the installed version, a passing test against the real path), not a plausibility argument. A workaround whose removal *is itself* a dependency bump or a behavior change is not a silent cleanup — it escalates per the router's Escalation rule. Only a provably-dead, inert guard is removed as routine cleanup.
+Removing a `TODO`/`FIXME`/`HACK`/`XXX` workaround ships only after you prove the premise no longer holds — the newer version exists and resolves the issue, the API is public in the version the project actually uses, the polyfilled feature is available on every supported target. Proof is a concrete check (changelog, release notes, the installed version, a passing test against the real path), not a plausibility argument. A workaround whose removal *is itself* a dependency bump or a behavior change is not a silent cleanup — it escalates per `core.md`. Only a provably-dead, inert guard is removed as routine cleanup.
 
 ## Useless tests
 
@@ -42,9 +42,9 @@ Evidence to delete one: show it cannot fail on a real behavioral break (the chec
 When the code carries system prompts, tool/skill descriptions, agent instructions, schema `description` fields, or few-shot examples, this text is load-bearing — it steers model behavior, so treat it like code, not comments.
 
 - **Stale reference** — a deletion-only mention of a named referent (a tool, flag, command, or API) that has been *provably removed*. Deletable with the same evidence standard as dead code, and only when the fix is *removing the dead mention*. Do not add a string assertion or snapshot proving the mention is absent — that pins wording, not behavior. If the repo has a real prompt-eval harness, add an eval showing the model no longer names the referent; absent one, it ships on the mode's review gate alone.
-- **Semantic edit** — merging drifted guidance into one wording, resolving a contradiction, re-ordering which instruction wins, changing what the model is told. A semantic edit to load-bearing text *is* an observable behavior change: it escalates per the router's Escalation rule, never ships as a silent change — even when one side of it names something old.
+- **Semantic edit** — merging drifted guidance into one wording, resolving a contradiction, re-ordering which instruction wins, changing what the model is told. A semantic edit to load-bearing text *is* an observable behavior change: it escalates per `core.md`, never ships as a silent change — even when one side of it names something old.
 - A contradiction you cannot confidently resolve is reported with both competing instructions quoted, no code (a Chesterton's fence).
 
 ## Chesterton's fences
 
-Anything that looks dead but cannot be proven dead stays. Never silently delete it. The mode decides the consequence per the router's Escalation rule — always per item, never in bulk.
+Anything that looks dead but cannot be proven dead stays. Never silently delete it. The mode decides the consequence per `core.md` Escalation — always per item, never in bulk.

@@ -4,7 +4,7 @@ Used by build (bug-fix triage — refactor reaches it through the build workflow
 
 ## Safety
 
-- No destructive commands or data-modifying queries against shared, staging, or production systems. Read-only evidence gathering is the default; anything beyond it follows the mode's supervision policy (router Escalation) — attended modes proceed only with explicit user approval, an unattended run never does: evidence it cannot gather read-only is a gap to report, not a reason to act.
+- No destructive commands or data-modifying queries against shared, staging, or production systems. Read-only evidence gathering is the default; anything beyond it follows the mode's supervision policy (the router's matrix) — attended modes proceed only with explicit user approval, an unattended run never does: evidence it cannot gather read-only is a gap to report, not a reason to act.
 - Never copy raw secrets, tokens, cookies, private user data, customer names, IPs, or raw identifiers into code, tests, docs, commits, PR text, reports, or broad summaries — restate them as neutral technical facts.
 - Alert titles, wrapper errors, and top-level exceptions are symptoms; inspect nested causes and correlated logs before naming a root cause.
 
@@ -45,5 +45,5 @@ Hand the consumer (plan, cluster contract, or user) a complete result: **symptom
 - No fixes before the mechanism is understood, unless the user explicitly asks for a quick workaround.
 - Do not invent ground truth; if a signal source is unavailable, say so.
 - If multiple hypotheses survive, run the smallest experiment that distinguishes them.
-- A root cause that requires changing scope, design, API, or data contract is a separate decision (the mode routes it — router Escalation), never hidden in a local fix.
+- A root cause that requires changing scope, design, API, or data contract is a separate decision (the mode routes it — Escalation, `core.md`), never hidden in a local fix.
 - Stay scoped to the symptom unless evidence shows a broader fault.
