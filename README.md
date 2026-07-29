@@ -8,6 +8,7 @@ Just another collection of skills for coding agents.
 - `investigate`: evidence-first debugging and root cause investigation. 
 - `rust-webapp`: build full-stack Rust web apps with Axum, SQLx, HTMX + Alpine.js (or DataStar for SSE-heavy UIs), and Neon. No React, no TypeScript, no Webpack, no Vite, no Babel, no yarn, no pnpm.
 - `ml-project`: opinionated workflow for ML projects.
+- `interactive`: session mode for working side by side — scannable actionable output, decisions surfaced as ranked choices instead of inferred, plain technical language. Manual trigger only.
 
 Kudos for inspiration and ideas go to:
 - [cc-thingz](https://github.com/umputun/cc-thingz) by [@umputun](https://github.com/umputun);
