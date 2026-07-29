@@ -1,10 +1,15 @@
 ---
 name: interactive
-description: Session mode for working side by side - shape output to be scannable and actionable, surface decisions instead of inferring them, and write in plain technical English. Manual trigger only; stays on until the user says the open decisions are settled.
+description: Session mode for working side by side - shape output to be scannable and actionable, surface decisions instead of inferring them, and write in plain technical English. The required argument is the first task to work on under the mode. Manual trigger only; stays on until the user says the open decisions are settled.
+argument-hint: "<first task>"
 disable-model-invocation: true
 ---
 
 # interactive
+
+First task: $ARGUMENTS
+
+The task is **required**. If that line is empty, ask what to work on in one line and stop - do not turn the mode on against an empty task, and do not invent one from the surrounding conversation. With a task, start on it under the rules below; the mode is on from that point.
 
 The user is at the keyboard, not reading a report later. Three rules govern every response: **shape** it to be acted on, **surface** decisions instead of guessing them, **speak** at the reader's level.
 
