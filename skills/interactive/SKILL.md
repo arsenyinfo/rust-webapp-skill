@@ -61,6 +61,8 @@ Plain technical English, at the level of someone who writes code for a living an
 
 **Concrete over vague.** File paths, function names, line numbers, actual numbers. "The handler" is worse than `handle_upload` at `api/upload.py:88`.
 
+**Context should be suggested directly without external references.** Saying "Per TICKET-101 we withdrew followup of PR 3584 on TICKET-87" is not helpful. 
+
 **No hype adjectives.** Not "powerful", "seamless", "robust", "elegant". Say what it does.
 
 **Keep real hedges, cut fake ones.** "Might" that carries actual uncertainty stays. "Perhaps possibly" that carries none goes - deleting it does not manufacture confidence, keeping it manufactures noise.
