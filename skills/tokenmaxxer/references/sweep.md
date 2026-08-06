@@ -18,7 +18,7 @@ You are in **sweep** mode: an unattended sweep of a named area — find small re
 ## Preflight — stop and report if any check fails
 
 1. Open the working doc (SKILL.md format) — it doubles as the morning report; append every entry as it resolves.
-2. **Ping the reviewer** (`codex:codex-rescue`, or the substitute named at launch — never swapped mid-run) and confirm a real answer. The independent reviewer is why unattended is safe; unreachable → abort the run. Mid-run, one timeout blocks that cluster (fail-closed below); a repeated outage stops the run — branches whose assembly review already passed may still ship, everything else is left intact under *Incomplete*.
+2. **Ping the reviewer** (resolved at launch per SKILL.md — never swapped mid-run) with a trivial prompt (e.g. `nitpicker ask --no-debate --max-turns 3 "Reply with exactly: PING OK"`) and confirm a real answer — this also proves credentials survive the non-interactive shell. The independent reviewer is why unattended is safe; unreachable → abort the run. Mid-run, one timeout blocks that cluster (fail-closed below); a repeated outage stops the run — branches whose assembly review already passed may still ship, everything else is left intact under *Incomplete*.
 3. Fetch the remote default branch, verify local equals remote, and **pin that SHA as the run base** — every branch cuts from it all night, even as the default branch advances. Fetch failure or unverifiable base → stop.
 4. **Clean tree.** Uncommitted user work in the area → stop; never fold someone's in-progress work into a PR.
 5. **Unique branch and worktree names.** A name collision is skipped and noted, never reused or clobbered.

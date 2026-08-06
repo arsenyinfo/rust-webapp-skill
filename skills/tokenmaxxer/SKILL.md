@@ -2,7 +2,7 @@
 name: tokenmaxxer
 description: Serious engineering work behind a reviewed plan and adversarial review gates. The required first argument word picks the mode - `build`, `refactor`, `sweep`, or `experiment`. Invoke explicitly, e.g. `/tokenmaxxer refactor <component>`.
 argument-hint: "build <task>  |  refactor <component>  |  sweep <area>  |  experiment <goal>"
-compatibility: "requires an external review tool (e.g. codex:codex-rescue or opencode); sweep additionally needs the gh CLI and a git repo with a remote; experiment additionally needs a runnable eval command in the target repo"
+compatibility: "requires an external review tool — nitpicker, codex, or opencode, resolved by references/get_reviewer.sh; sweep additionally needs the gh CLI and a git repo with a remote; experiment additionally needs a runnable eval command in the target repo"
 ---
 
 Serious work mode. Task: $ARGUMENTS
@@ -19,13 +19,13 @@ Load only your mode's file and never blend two modes' policies: attended modes p
 
 ## REVIEW — the cross-review primitive
 
-`REVIEW(target, reviewer = codex:codex-rescue)`:
+`REVIEW(target, reviewer)` — resolve the reviewer once at launch: `references/get_reviewer.sh <repo>` picks the first available of `nitpicker`, `codex`, `opencode` and prints its invocation contract — follow it for every gate. An explicit user choice overrides the pick (pass it as the second argument). Then:
 
 1. Run the external reviewer on the target, adversarially: find the strongest reason this should not proceed, not reasons it is probably fine.
 2. Triage each finding, noting what you skip and why: **blocker** (wrong behavior, data loss, security, race, silently swallowed error) — fix always; **major** (maintainability or missing behavior coverage beyond one local spot) — fix this round; **minor** (local naming, style, structure) — fix only if already touching that code; **cosmetic** — skip. Skipped minors and cosmetics die with the round — at most one summary line, never a follow-up block.
 3. Repeat until a round yields nothing actionable, max 3 rounds. Findings still unresolved after that are surfaced to the mode's approver, not retried.
 
-The reviewer is external and independent — that is the entire point. Never degrade to self-review: if the reviewer is unavailable, stop and surface it (attended: ask the user to fix it; sweep: abort per its preflight; experiment mid-batch: stop the batch and report — a metric alone is not a gate). There are no internal gates on top — do not add subagent self-review rounds after the external one. Substitute another review tool when the user prefers one; sweep names its reviewer at launch and experiment fixes it at plan approval — neither swaps mid-run.
+The reviewer is external and independent — that is the entire point. Never degrade to self-review: if the reviewer is unavailable, stop and surface it (attended: ask the user to fix it; sweep: abort per its preflight; experiment mid-batch: stop the batch and report — a metric alone is not a gate). There are no internal gates on top — do not add subagent self-review rounds after the external one. Sweep fixes its reviewer at launch and experiment at plan approval — neither swaps mid-run.
 
 Every REVIEW prompt asks for concrete file/line findings across these lenses:
 
