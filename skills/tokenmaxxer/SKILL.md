@@ -1,49 +1,88 @@
 ---
 name: tokenmaxxer
-description: Serious engineering work behind a reviewed plan and adversarial review gates. The required first argument word picks the mode - `build`, `refactor`, `sweep`, `experiment`, or `followup`. Invoke explicitly, e.g. `/tokenmaxxer refactor <component>`.
-argument-hint: "build <task>  |  refactor <component>  |  sweep <area>  |  experiment <goal>  |  followup"
-compatibility: "requires an external review tool (e.g. codex:codex-rescue or opencode); the investigate skill is recommended for deep triage (a self-contained core ships in references/triage.md); sweep additionally needs the gh CLI and a git repo with a remote; experiment additionally needs a runnable eval command in the target repo"
+description: Serious engineering work behind a reviewed plan and adversarial review gates. The required first argument word picks the mode - `build`, `refactor`, `sweep`, or `experiment`. Invoke explicitly, e.g. `/tokenmaxxer refactor <component>`.
+argument-hint: "build <task>  |  refactor <component>  |  sweep <area>  |  experiment <goal>"
+compatibility: "requires an external review tool (e.g. codex:codex-rescue or opencode); sweep additionally needs the gh CLI and a git repo with a remote; experiment additionally needs a runnable eval command in the target repo"
 ---
 
 Serious work mode. Task: $ARGUMENTS
 
-The dev loop is the same across modes: understand the problem, capture intent in a contract, implement in reviewable slices, validate, and run adversarial review gates. What differs is *who approves*, *what may change*, and *how work is chunked* — that lives in the mode file.
-
 ## Mode dispatch
 
-The first word of `$ARGUMENTS` names the mode and is **required — there is no default**. It is always a mode selector, never part of the task, so a task that happens to start with the word "refactor" or "sweep" is never misread. If the first word is not exactly one of the five below, do not guess the mode — tell the user it is required and ask which one. Requiring the keyword is a safety property, not a formality: `sweep` opens PRs while the user is asleep, so it must never be reached by inference.
+The first word of `$ARGUMENTS` is the mode — required, never guessed, never part of the task. If it is not exactly one of the four below, say the keyword is required and ask which one. The keyword is a safety property: `sweep` opens PRs while the user is asleep, so it must never be reached by inference.
 
-**Attended — these compose on `build`. Read `references/build.md` (the dev loop) plus your mode's own file (the overrides).**
+- **`build <task>`** and **`refactor <component>`** → `references/attended.md`. Attended: the user is present, approves the plan, and settles the key decisions. `refactor` is build plus a behavior-preservation profile for one accreted component; a codebase-wide rename or pattern migration is `build`.
+- **`sweep <area>`** → `references/sweep.md`. Unattended overnight cleanup shipping draft PRs. Never asks once launched; the named area, fixed at launch, is its consent boundary.
+- **`experiment <goal>`** → `references/experiment.md`. Metric-driven experimentation. Attended at the ends; autonomous mid-batch strictly under the approved hypothesis tree.
 
-- **`build <task>`** → `references/build.md`. A feature, a root-caused bug fix, or a broad cross-cutting change — a codebase-wide refactor-shaped change (a rename, a pattern migration) included.
-- **`refactor <component>`** → `references/refactor.md`. Consolidate one component that grew by accretion into one coherent design; behavior-preserving. One component — codebase-wide is `build`.
-- **`followup`** → `references/followup.md`. Work the run doc's open follow-ups with the user's decisions, review-first. No required argument; an optional one names an older run doc or filters by area.
+Load only your mode's file and never blend two modes' policies: attended modes pause and ask; sweep never does; experiment asks only at the ends. (The former `followup` mode is retired — recorded follow-ups are worked as ordinary `build` tasks.)
 
-**Autonomous — each stands alone. Never load either beside another mode's file.**
+## REVIEW — the cross-review primitive
 
-- **`sweep <area>`** → `references/sweep.md`. Unattended overnight cleanup of a named area, shipping tiny verified fixes as draft PRs.
-- **`experiment <goal>`** → `references/experiment.md`. Metric-driven experimentation toward a goal: frame the metric and noise floor, build a hypothesis tree, gate and get it approved, run the batch autonomously, report with the next batch proposed.
+`REVIEW(target, reviewer = codex:codex-rescue)`:
 
-## Supervision matrix
+1. Run the external reviewer on the target, adversarially: find the strongest reason this should not proceed, not reasons it is probably fine.
+2. Triage each finding, noting what you skip and why: **blocker** (wrong behavior, data loss, security, race, silently swallowed error) — fix always; **major** (maintainability or missing behavior coverage beyond one local spot) — fix this round; **minor** (local naming, style, structure) — fix only if already touching that code; **cosmetic** — skip. Skipped minors and cosmetics die with the round — at most one summary line, never a follow-up block.
+3. Repeat until a round yields nothing actionable, max 3 rounds. Findings still unresolved after that are surfaced to the mode's approver, not retried.
 
-| mode | approver | consent boundary | escalation → | composition |
-|---|---|---|---|---|
-| `build` | user | plan approval | ask the user | the base loop |
-| `refactor` | user | plan approval | ask the user | build + overrides |
-| `followup` | user | per-item decision at intake | ask the user | build + overrides |
-| `sweep` | none — unattended | the named area, fixed at launch | run doc → *needs-your-call* | standalone |
-| `experiment` | user at the ends only | the approved hypothesis tree | attended phases: ask · mid-batch: ambiguity → disclosed best guess; scope, contract, or frozen protocol → park as a next-batch proposal | standalone |
+The reviewer is external and independent — that is the entire point. Never degrade to self-review: if the reviewer is unavailable, stop and surface it (attended: ask the user to fix it; sweep: abort per its preflight; experiment mid-batch: stop the batch and report — a metric alone is not a gate). There are no internal gates on top — do not add subagent self-review rounds after the external one. Substitute another review tool when the user prefers one; sweep names its reviewer at launch and experiment fixes it at plan approval — neither swaps mid-run.
 
-**Never operate under two modes' policies at once.** That blend is the failure this skill guards against. Attended modes pause and ask; `sweep` never asks once launched (its one question — refusing to start without a named area — happens at launch); `experiment` is attended at the ends and autonomous mid-batch strictly under the pre-approved plan, which is its consent boundary as the named area is sweep's.
+Every REVIEW prompt asks for concrete file/line findings across these lenses:
 
-This matrix is the whole supervision policy; the mode file adds detail under its own row and never contradicts it. The shared references (`design-taste.md`, `deletion-evidence.md`, `triage.md`) carry mechanisms and evidence standards only, never policy.
+- correctness, security, performance, data loss, races, partial failure;
+- scope creep: unrelated changes, hidden behavior changes, extra features;
+- overengineering: pass-through wrappers, single-implementation interfaces, layer-cake delegation, future-proof hooks, fallback paths that hide errors. The posture the code moves toward: boring and explicit beats clever; closed sets as enums/newtypes rather than strings and bools (without growing footprint for type ceremony); validate at boundaries and convert to domain types early, no swallowed errors; abstractions pay rent immediately; minimal public surface, zero dead code;
+- tests: missing behavior coverage, untested error paths, mocks or monkeypatches of the system under test's own internals, assertions that pin prose or wording rather than behavior;
+- project fit: naming, error handling, logging, structure match the existing codebase and CLAUDE.md.
+
+## Triage before fixes
+
+A bug-shaped task (failure, regression, flake, incident, unexplained behavior) gets evidence before theory: exact symptom → strongest available evidence (reproduction, logs, tests, git history) → smallest reliable reproduction → mechanism with file:line → root cause. No fix before the mechanism is established. Prefer observed evidence over code reading, code over history, history over docs, docs over memory; when a signal source is unavailable, say so — never invent ground truth. Use `skill: investigate` when it is installed and the triage needs deep or remote signals.
+
+## Deletion evidence
+
+Nothing is deleted on a plausibility argument. Dead means: a callers search from the repository root covering tests, generated code, and string-name references (DI registries, serialized configs, migrations); a config-value search across environments; for migration-shaped candidates (v1/v2 pairs, compatibility shims, never-set flags) additionally git history — recent commits touching the item mean an in-flight migration, not dead weight; a "no traffic" claim cites a rollout/config source or telemetry, not a static search. Whatever looks dead but cannot be proven dead is a Chesterton's fence: listed for the user, never silently deleted.
 
 ## Working doc
 
-Every run keeps **one** working doc at `/tmp/tokenmaxxer-<repo-basename>-<mode>-<slug>-<YYYYMMDD-HHMM>.md` — intent contract, progress, follow-ups, and outcome in one place. The timestamp keeps a repeated run from overwriting an earlier one's undrained findings. The path is convention, not memory: after compaction or in a fresh session, find the doc by globbing `/tmp/tokenmaxxer-<repo-basename>-*` — never guess the exact name. Two modes open no doc of their own: build's trivial fast path (unless it surfaces a follow-up), and `followup`, which works in the doc it drains.
+One doc per run at `/tmp/tokenmaxxer-<repo-basename>-<mode>-<slug>-<YYYYMMDD-HHMM>.md`. Find an existing doc by globbing `/tmp/tokenmaxxer-<repo-basename>-*` — never guess the name; never overwrite one (append `-2` on a collision). Append as the run proceeds. It contains exactly:
 
-There is no cross-run ledger. Findings live with the run that found them, and `followup` works one doc at a time — by default the most recently modified one that still has `open` or `deferred` blocks, so a later run that left none cannot shadow it. Format and the follow-up block spec are in `references/core.md`.
+```
+# <mode> run — <slug>
+base: <sha> · branch: <name> · scope: <...> · status: <...>
+## Intent        — the approved contract: goal, inputs/outputs, acceptance criteria, scope boundaries
+## Decisions     — one line per settled decision: what was chosen and why
+## Tasks         — the checklist, [ ]/[x]
+## Gates         — one line per REVIEW round: target, verdict, unresolved count
+## Follow-ups    — admitted blocks only (below)
+## Outcome       — what shipped, what didn't, where follow-ups went
+```
 
-## Next
+Forbidden content: review transcripts or finding-by-finding inventories, superseded plan drafts, exploration reports once synthesized, process narration. The doc is a state record, not a diary — gate detail lives in the reviewer's own output; a decision is one line. Build's trivial fast path opens no doc.
 
-Read `references/core.md` — the review gates, intent contract, escalation mechanism, and working doc format shared by every mode — then your mode's file, and follow them.
+## Follow-up blocks
+
+A follow-up block is an admission the discussion missed something; the target volume is zero. Record one only when **all four** hold:
+
+1. **verified** — the defect is confirmed and its mechanism known, not speculated;
+2. **outside current authority** — acting on it needs a decision the approver owns (scope, behavior, contract, security);
+3. **material** — blocker or major; "chose not to touch it" does not qualify;
+4. **actionable now** — answering the question selects a concrete next action; "revisit if evidence appears" fails.
+
+Anything failing the test dies with its review round or gets one summary line. A trade-off created by the current diff never becomes a block — it is resolved before that diff gate closes.
+
+```
+- sweep-key: <normalized-path>:<line-range>:<mechanism-slug>
+  tier: blocker | major
+  defect: <one line, with file:line>
+  question: <the decision, answerable without re-reading the codebase, with a recommendation>
+  status: open | done (<where it went>) | declined (<reason>)
+```
+
+## Escalation
+
+When implementation proves the approved scope, externally observable behavior, an API or data contract, or the acceptance criteria must change: stop and route it to the mode's approver — attended: a focused discussion with the user (`attended.md`); sweep: a *needs-your-call* entry in the run doc; experiment: a parked next-batch proposal. Never smuggle a contract change into a local fix.
+
+---
+
+Hold your own work to the REVIEW lenses — don't wait for review to catch what you can catch yourself. Temporary files go in /tmp.
