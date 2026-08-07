@@ -36,6 +36,9 @@ nitpicker
   [--context-file <path>] "<question>"` — ask preserves dissent, and --context-file carries
   docs that live outside the repo. At gates, demand an explicit confirmed/refuted verdict;
   anything short of explicit confirmation is a block.
+  Credentials load per-shell on some setups: if `command -v loadenv` succeeds in your
+  shell, prefix every nitpicker call with `loadenv && ` — exported vars do not survive
+  between separate shell invocations.
   Verdict contract: non-zero exit (1 hard failure, 3 degraded) is reviewer failure — fail
   closed. Exit 0 means the run was healthy; the only no-findings pass is the exact output
   `No findings. Great job! 🎉` — anything else is findings to triage.
