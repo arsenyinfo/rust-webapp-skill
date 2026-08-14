@@ -45,7 +45,9 @@ Nothing is deleted on a plausibility argument. Dead means: a callers search from
 
 ## Working doc
 
-One doc per run at `/tmp/tokenmaxxer-<repo-basename>-<mode>-<slug>-<YYYYMMDD-HHMM>.md`. Find an existing doc by globbing `/tmp/tokenmaxxer-<repo-basename>-*` — never guess the name; never overwrite one (append `-2` on a collision). Append as the run proceeds. It contains exactly:
+One doc per run at `/tmp/tokenmaxxer-<repo-basename>-<mode>-<slug>-<YYYYMMDD-HHMM>.md`. Find an existing doc by globbing `/tmp/tokenmaxxer-<repo-basename>-*` — never guess the name; never overwrite one (append `-2` on a collision). Two parts, two disciplines.
+
+**State** — the top of the doc: the human-readable plan and high-level overview, kept current by editing in place and deleting superseded content. Exactly these sections, never more:
 
 ```
 # <mode> run — <slug>
@@ -58,7 +60,11 @@ base: <sha> · branch: <name> · scope: <...> · status: <...>
 ## Outcome       — what shipped, what didn't, where follow-ups went
 ```
 
-Forbidden content: review transcripts or finding-by-finding inventories, superseded plan drafts, exploration reports once synthesized, process narration. The doc is a state record, not a diary — gate detail lives in the reviewer's own output; a decision is one line. Build's trivial fast path opens no doc.
+No transcripts, superseded drafts, exploration dumps, or process narration in State — that lives below.
+
+**Log** — everything under a `## Log` heading at the bottom: an append-only journal, one timestamped entry per event — a review round with its findings and their fates, a commit, a decision as it happened, an escalation, a blocker. This is the run's recovery record: write what a cold restart of the run would need, with as much detail as that takes, here and nowhere else.
+
+On resume (compaction, crash, new session): rebuild from State, then scan the Log tail. State outranks memory and the Log — an event isn't done until State reflects it. Build's trivial fast path opens no doc.
 
 ## Follow-up blocks
 
