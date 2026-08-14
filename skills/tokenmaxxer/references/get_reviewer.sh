@@ -36,6 +36,9 @@ nitpicker
   [--context-file <path>] "<question>"` — ask preserves dissent, and --context-file carries
   docs that live outside the repo. At gates, demand an explicit confirmed/refuted verdict;
   anything short of explicit confirmation is a block.
+  Run it bare, in the foreground, and read the full report. No output filters (`| tail`
+  masks the exit code and can cut findings), no retry or `until` loops (a failed or
+  degraded run is a block to surface, never to retry away), no backgrounding-and-polling.
   Verdict contract: non-zero exit (1 hard failure, 3 degraded) is reviewer failure — fail
   closed. Exit 0 means the run was healthy; the only no-findings pass is the exact output
   `No findings. Great job! 🎉` — anything else is findings to triage.
