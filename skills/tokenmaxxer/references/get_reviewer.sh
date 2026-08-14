@@ -29,9 +29,9 @@ fi
 case "$choice" in
   nitpicker) cat <<'EOF'
 nitpicker
-  Diff gates: run `nitpicker --prompt "<adversarial framing>"` from the branch. It reviews
+  Diff gates: run `nitpicker` from the branch. It reviews
   uncommitted changes plus branch commits vs the default branch — scope the prompt when the
-  gate targets less.
+  gate targets less. It uses universal default review criteria.
   Everything else (options, plans, positive confirmations, surveys): `nitpicker ask
   [--context-file <path>] "<question>"` — ask preserves dissent, and --context-file carries
   docs that live outside the repo. At gates, demand an explicit confirmed/refuted verdict;
