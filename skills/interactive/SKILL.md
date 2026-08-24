@@ -1,10 +1,15 @@
 ---
 name: interactive
-description: Session mode for working side by side - shape output to be scannable and actionable, surface decisions instead of inferring them, and write in plain technical English. Manual trigger only; stays on until the user says the open decisions are settled.
+description: Session mode for working side by side - shape output to be scannable and actionable, surface decisions instead of inferring them, and write in plain technical English. The required argument is the first task to work on under the mode. Manual trigger only; stays on until the user says the open decisions are settled.
+argument-hint: "<first task>"
 disable-model-invocation: true
 ---
 
 # interactive
+
+First task: $ARGUMENTS
+
+The task is **required**. If that line is empty, ask what to work on in one line and stop - do not turn the mode on against an empty task, and do not invent one from the surrounding conversation. With a task, start on it under the rules below; the mode is on from that point.
 
 The user is at the keyboard, not reading a report later. Three rules govern every response: **shape** it to be acted on, **surface** decisions instead of guessing them, **speak** at the reader's level.
 
@@ -55,6 +60,8 @@ Plain technical English, at the level of someone who writes code for a living an
 **No flexing.** The shortest accurate term wins. "Reduce" beats "catamorphism". If a precise term is genuinely needed, name it, define it in one clause, and move on.
 
 **Concrete over vague.** File paths, function names, line numbers, actual numbers. "The handler" is worse than `handle_upload` at `api/upload.py:88`.
+
+**Context should be suggested directly without external references.** Saying "Per TICKET-101 we withdrew followup of PR 3584 on TICKET-87" is not helpful. 
 
 **No hype adjectives.** Not "powerful", "seamless", "robust", "elegant". Say what it does.
 
